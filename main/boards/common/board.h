@@ -48,8 +48,8 @@ class AudioCodec;
 class Display;
 class Board {
 private:
-    Board(const Board&) = delete; // 禁用拷贝构造函数
-    Board& operator=(const Board&) = delete; // 禁用赋值操作
+    Board(const Board&) = delete; // Disable拷贝构造Functions
+    Board& operator=(const Board&) = delete; // Disable赋值Operation
 
 protected:
     Board();

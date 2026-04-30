@@ -70,7 +70,7 @@ private:
                         self->power_status_ = kDeviceBatterySupply;
                     }
 
-                    /* 低于某个电量，会自动关机 */
+                    /* 低于某个Battery level，会自动关机 */
                     if (self->power_manager_->low_voltage_ < 2630 && self->power_status_ == kDeviceBatterySupply) {
                         esp_timer_stop(self->power_manager_->timer_handle_);
 
@@ -179,9 +179,9 @@ private:
         ret |= esp_io_expander_set_dir(io_exp_handle, DRV_IO_EXP_INPUT_MASK, IO_EXPANDER_INPUT);
 
         ret |= esp_io_expander_set_level(io_exp_handle, XIO_VDD_2V8_EN, 1); /* 0308 */
-        ret |= esp_io_expander_set_level(io_exp_handle, XIO_VDD_3V3_EN, 1); /* 电源 */
+        ret |= esp_io_expander_set_level(io_exp_handle, XIO_VDD_3V3_EN, 1); /* Power */
         ret |= esp_io_expander_set_level(io_exp_handle, XIO_ESP_ADC_SEL, 1); /* ADC */
-        ret |= esp_io_expander_set_level(io_exp_handle, XIO_VDDA_3V3_EN, 1);/* 音频电源 */
+        ret |= esp_io_expander_set_level(io_exp_handle, XIO_VDDA_3V3_EN, 1);/* 音频Power */
         ret |= esp_io_expander_set_level(io_exp_handle, XIO_VBAT_EN, 1);    /* 音频 */
         ret |= esp_io_expander_set_level(io_exp_handle, XIO_PA_CTRL, 1);    /* 音频功放 */
         ret |= esp_io_expander_set_level(io_exp_handle, XIO_LCD_BL, 0);     /* LCD背光 */
@@ -222,7 +222,7 @@ private:
         esp_lcd_panel_io_handle_t panel_io = nullptr;
         esp_lcd_panel_handle_t panel = nullptr;
         ESP_LOGD(TAG, "Install panel IO");
-        // 液晶屏控制IO初始化
+        // 液晶屏控制IOInitialize
         esp_lcd_panel_io_spi_config_t io_config = {};
         io_config.cs_gpio_num = LCD_CS_PIN;
         io_config.dc_gpio_num = LCD_DC_PIN;
@@ -233,7 +233,7 @@ private:
         io_config.lcd_param_bits = 8;
         esp_lcd_new_panel_io_spi(SPI2_HOST, &io_config, &panel_io);
 
-        // 初始化液晶屏驱动芯片ST7789
+        // Initialize液晶屏驱动芯片ST7789
         ESP_LOGD(TAG, "Install LCD driver");
         esp_lcd_panel_dev_config_t panel_config = {};
         panel_config.reset_gpio_num = GPIO_NUM_NC;
@@ -352,12 +352,12 @@ private:
         }, this);
     }
 
-    /* 初始化摄像头：GC0308； */
-    /* 根据正点原子官方示例参数 */
+    /* Initialize摄像头：GC0308； */
+    /* 根据正点原子官方ExampleParameters */
     void InitializeCamera() {
-        esp_io_expander_set_level(io_exp_handle, XIO_TP_CAM_RESET, 0);  /* 确保复位 */ 
-        vTaskDelay(pdMS_TO_TICKS(50));                                  /* 延长复位保持时间 */
-        esp_io_expander_set_level(io_exp_handle, XIO_TP_CAM_RESET, 1);  /* 释放复位 */
+        esp_io_expander_set_level(io_exp_handle, XIO_TP_CAM_RESET, 0);  /* 确保Reset */ 
+        vTaskDelay(pdMS_TO_TICKS(50));                                  /* 延长Reset保持Time */
+        esp_io_expander_set_level(io_exp_handle, XIO_TP_CAM_RESET, 1);  /* 释放Reset */
         vTaskDelay(pdMS_TO_TICKS(50));                                  /* 延长 50ms */
 
         /* DVP pin configuration */
@@ -381,9 +381,9 @@ private:
 
         /* 复用 I2C 总线 */
         esp_video_init_sccb_config_t sccb_config = {
-            .init_sccb = false,         /* 不初始化新的 SCCB，使用现有的 I2C 总线 */
+            .init_sccb = false,         /* 不Initialize新的 SCCB，使用现有的 I2C 总线 */
             .i2c_handle = i2c_bus_,     /* 使用现有的 I2C 总线句柄 */ 
-            .freq = 100000,             /* SCCB 通信频率，通常为 100kHz */
+            .freq = 100000,             /* SCCB 通信Frequency，通常为 100kHz */
         };
 
         esp_video_init_dvp_config_t dvp_config = {
@@ -467,5 +467,5 @@ public:
 
 DECLARE_BOARD(atk_dnesp32s3_box3);
 
-// 定义静态成员变量
+// Define静态成员Variables
 atk_dnesp32s3_box3* atk_dnesp32s3_box3::instance_ = nullptr;

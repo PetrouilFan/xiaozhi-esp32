@@ -38,7 +38,7 @@
 #define DISPLAY_WIDTH 128
 #define DISPLAY_HEIGHT 128
 
-// 根据PCB版本动态选择屏幕类型和配置 
+// 根据PCBVersion动态选择屏幕Class型和Configuration 
 #define PCB_VERSION_2_5A  1 // 使用GC9107
 #define PCB_VERSION_2_5A1 2 // 使用ST7735
 

@@ -11,7 +11,7 @@ static const char* TAG = "EdaSuperBearMovements";
 EdaRobot::EdaRobot() {
     is_edarobot_resting_ = false;
     has_hands_ = false;
-    // 初始化所有舵机管脚为-1（未连接）
+    // Initialize所有舵机管脚为-1（Not yetConnect）
     for (int i = 0; i < SERVO_COUNT; i++) {
         servo_pins_[i] = -1;
         servo_trim_[i] = 0;
@@ -35,7 +35,7 @@ void EdaRobot::Init(int left_leg, int right_leg, int left_foot, int right_foot, 
     servo_pins_[LEFT_HAND] = left_hand;
     servo_pins_[RIGHT_HAND] = right_hand;
 
-    // 检查是否有手部舵机
+    // Check是否有手部舵机
     has_hands_ = (left_hand != -1 && right_hand != -1);
 
     AttachServos();
@@ -203,23 +203,23 @@ void EdaRobot::Execute(int amplitude[SERVO_COUNT], int offset[SERVO_COUNT], int 
 ///////////////////////////////////////////////////////////////////
 void EdaRobot::Home(bool hands_down) {
     if (is_edarobot_resting_ == false) {  // Go to rest position only if necessary
-        // 为所有舵机准备初始位置值
+        // 为所有舵机Prepare初始Position值
         int homes[SERVO_COUNT];
         for (int i = 0; i < SERVO_COUNT; i++) {
             if (i == LEFT_HAND || i == RIGHT_HAND) {
                 if (hands_down) {
-                    // 如果需要复位手部，设置为默认值
+                    // 如果需要Reset手部，Settings为Default value
                     if (i == LEFT_HAND) {
                         homes[i] = HAND_HOME_POSITION;
                     } else {                                  // RIGHT_HAND
-                        homes[i] = 180 - HAND_HOME_POSITION;  // 右手镜像位置
+                        homes[i] = 180 - HAND_HOME_POSITION;  // 右手镜像Position
                     }
                 } else {
-                    // 如果不需要复位手部，保持当前位置
+                    // 如果不需要Reset手部，保持当前Position
                     homes[i] = servo_[i].GetPosition();
                 }
             } else {
-                // 腿部和脚部舵机始终复位
+                // 腿部和脚部舵机始终Reset
                 homes[i] = 90;
             }
         }
@@ -274,9 +274,9 @@ void EdaRobot::Walk(float steps, int period, int dir, int amount) {
     int O[SERVO_COUNT] = {0, 0, 5, -5, HAND_HOME_POSITION - 90, HAND_HOME_POSITION};
     double phase_diff[SERVO_COUNT] = {0, 0, DEG2RAD(dir * -90), DEG2RAD(dir * -90), 0, 0};
 
-    // 如果amount>0且有手部舵机，设置手部振幅和相位
+    // 如果amount>0且有手部舵机，Settings手部振幅和相位
     if (amount > 0 && has_hands_) {
-        // 手臂振幅使用传入的amount参数
+        // 手臂振幅使用传入的amountParameters
         A[LEFT_HAND] = amount;
         A[RIGHT_HAND] = amount;
 
@@ -318,9 +318,9 @@ void EdaRobot::Turn(float steps, int period, int dir, int amount) {
         A[1] = 30;
     }
 
-    // 如果amount>0且有手部舵机，设置手部振幅和相位
+    // 如果amount>0且有手部舵机，Settings手部振幅和相位
     if (amount > 0 && has_hands_) {
-        // 手臂振幅使用传入的amount参数
+        // 手臂振幅使用传入的amountParameters
         A[LEFT_HAND] = amount;
         A[RIGHT_HAND] = amount;
 
@@ -589,10 +589,10 @@ void EdaRobot::Flapping(float steps, int period, int height, int dir) {
 }
 
 //---------------------------------------------------------
-//-- 手部动作: 举手
+//-- 手部Action: 举手
 //--  Parameters:
-//--    period: 动作时间
-//--    dir: 方向 1=左手, -1=右手, 0=双手
+//--    period: ActionTime
+//--    dir: Direction 1=左手, -1=右手, 0=双手
 //---------------------------------------------------------
 void EdaRobot::HandsUp(int period, int dir) {
     if (!has_hands_) {
@@ -617,10 +617,10 @@ void EdaRobot::HandsUp(int period, int dir) {
 }
 
 //---------------------------------------------------------
-//-- 手部动作: 双手放下
+//-- 手部Action: 双手放下
 //--  Parameters:
-//--    period: 动作时间
-//--    dir: 方向 1=左手, -1=右手, 0=双手
+//--    period: ActionTime
+//--    dir: Direction 1=左手, -1=右手, 0=双手
 //---------------------------------------------------------
 void EdaRobot::HandsDown(int period, int dir) {
     if (!has_hands_) {
@@ -639,10 +639,10 @@ void EdaRobot::HandsDown(int period, int dir) {
 }
 
 //---------------------------------------------------------
-//-- 手部动作: 挥手
+//-- 手部Action: 挥手
 //--  Parameters:
-//--    period: 动作周期
-//--    dir: 方向 LEFT/RIGHT/BOTH
+//--    period: ActionPeriod
+//--    dir: Direction LEFT/RIGHT/BOTH
 //---------------------------------------------------------
 void EdaRobot::HandWave(int period, int dir) {
     if (!has_hands_) {
@@ -703,9 +703,9 @@ void EdaRobot::HandWave(int period, int dir) {
 }
 
 //---------------------------------------------------------
-//-- 手部动作: 双手同时挥手
+//-- 手部Action: 双手同时挥手
 //--  Parameters:
-//--    period: 动作周期
+//--    period: ActionPeriod
 //---------------------------------------------------------
 void EdaRobot::HandWaveBoth(int period) {
     if (!has_hands_) {

@@ -367,7 +367,7 @@ NoAudioCodecSimplexPdm::NoAudioCodecSimplexPdm(int input_sample_rate, int output
 int NoAudioCodecSimplexPdm::Read(int16_t* dest, int samples) {
     size_t bytes_read;
 
-    // PDM 解调后的数据位宽为 16 位，直接读取到目标缓冲区
+    // PDM 解调后的数据位宽为 16 位，直接Read到目标缓冲区
     if (i2s_channel_read(rx_handle_, dest, samples * sizeof(int16_t), &bytes_read, portMAX_DELAY) != ESP_OK) {
         ESP_LOGE(TAG, "Read Failed!");
         return 0;

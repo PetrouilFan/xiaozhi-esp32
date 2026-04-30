@@ -79,7 +79,7 @@ public:
     void Flapping(float steps = 1, int period = 1000, int height = 20, int dir = FORWARD);
     void WhirlwindLeg(float steps = 1, int period = 300, int amplitude = 30);
 
-    // -- 手部动作
+    // -- 手部Action
     void HandsUp(int period = 1000, int dir = 0);      // 双手举起
     void HandsDown(int period = 1000, int dir = 0);    // 双手放下
     void HandWave(int dir = LEFT);  // 挥手
@@ -90,7 +90,7 @@ public:
     void Shy(int dir = LEFT, float steps = 5);  // 害羞
     void RadioCalisthenics();  // 广播体操
     void MagicCircle();  // 爱的魔力转圈圈
-    void Showcase();  // 展示动作（串联多个动作）
+    void Showcase();  // 展示Action（串联多个Action）
 
     // -- Servo limiter
     void EnableServoLimit(int speed_limit_degree_per_sec = SERVO_LIMIT_DEFAULT);

@@ -56,16 +56,16 @@ public:
     bool GetRestState();
     void SetRestState(bool state);
 
-    // -- 手部动作
+    // -- 手部Action
     void HandAction(int action, int times = 1, int amount = 30, int period = 1000);
     // action: 1=举左手, 2=举右手, 3=举双手, 4=放左手, 5=放右手, 6=放双手, 7=挥左手, 8=挥右手,
     // 9=挥双手, 10=拍打左手, 11=拍打右手, 12=拍打双手
 
-    //-- 身体动作
+    //-- 身体Action
     void BodyAction(int action, int times = 1, int amount = 30, int period = 1000);
     // action: 1=左转, 2=右转
 
-    //-- 头部动作
+    //-- 头部Action
     void HeadAction(int action, int times = 1, int amount = 10, int period = 500);
     // action: 1=抬头, 2=低头, 3=点头, 4=回中心, 5=连续点头
 

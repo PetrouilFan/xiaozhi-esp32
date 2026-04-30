@@ -40,7 +40,7 @@ public:
     EdaSuperBear() : boot_button_(BOOT_BUTTON_GPIO) {
         InitializeDisplay();
         InitializeButtons();
-        ESP_LOGI(TAG, "初始化EdaRobot机器人MCP控制器");
+        ESP_LOGI(TAG, "InitializeEdaRobot机器人MCP控制器");
         ::InitializeEdaSuperBearController();
     }
 

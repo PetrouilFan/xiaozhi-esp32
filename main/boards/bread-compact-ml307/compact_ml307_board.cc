@@ -149,7 +149,7 @@ private:
         });
     }
 
-    // 物联网初始化，添加对 AI 可见设备
+    // 物联网Initialize，添加对 AI 可见设备
     void InitializeTools() {
         static LampController lamp(LAMP_GPIO);
     }

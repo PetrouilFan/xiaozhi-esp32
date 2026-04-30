@@ -14,7 +14,7 @@ HEADER_TEMPLATE = """// Auto-generated language config
 #endif
 
 namespace Lang {{
-    // 语言元数据
+    // Language元数据
     constexpr const char* CODE = "{lang_code}";
 
     // 字符串资源 (en-US as fallback for missing keys)
@@ -30,7 +30,7 @@ namespace Lang {{
 """
 
 def load_base_language(assets_dir):
-    """加载 en-US 基准语言数据"""
+    """Load en-US 基准Language数据"""
     base_lang_path = os.path.join(assets_dir, 'locales', 'en-US', 'language.json')
     if os.path.exists(base_lang_path):
         try:
@@ -45,7 +45,7 @@ def load_base_language(assets_dir):
     return {'strings': {}}
 
 def get_sound_files(directory):
-    """获取目录中的音效文件列表"""
+    """GetDirectory中的音效Files列表"""
     if not os.path.exists(directory):
         return []
     return [f for f in os.listdir(directory) if f.endswith('.ogg')]
@@ -56,10 +56,10 @@ def generate_header(lang_code, output_path):
     main_dir = os.path.dirname(output_path)  # main/assets
     if os.path.basename(main_dir) == 'assets':
         main_dir = os.path.dirname(main_dir)  # main
-    project_dir = os.path.dirname(main_dir)  # 项目根目录
+    project_dir = os.path.dirname(main_dir)  # 项目根Directory
     assets_dir = os.path.join(main_dir, 'assets')
     
-    # 构建语言JSON文件路径
+    # 构建LanguageJSONFiles路径
     input_path = os.path.join(assets_dir, 'locales', lang_code, 'language.json')
     
     print(f"Processing language: {lang_code}")
@@ -72,20 +72,20 @@ def generate_header(lang_code, output_path):
     with open(input_path, 'r', encoding='utf-8') as f:
         data = json.load(f)
 
-    # 验证数据结构
+    # Verify数据结构
     if 'language' not in data or 'strings' not in data:
         raise ValueError("Invalid JSON structure")
 
-    # 加载 en-US 基准语言数据
+    # Load en-US 基准Language数据
     base_data = load_base_language(assets_dir)
     
-    # 合并字符串：以 en-US 为基准，用户语言覆盖
+    # 合并字符串：以 en-US 为基准，用户Language覆盖
     base_strings = base_data.get('strings', {})
     user_strings = data['strings']
     merged_strings = base_strings.copy()
     merged_strings.update(user_strings)
     
-    # 统计信息
+    # 统计Info
     base_count = len(base_strings)
     user_count = len(user_strings)
     total_count = len(merged_strings)
@@ -98,28 +98,28 @@ def generate_header(lang_code, output_path):
     if fallback_count > 0:
         print(f"  - Fallback to en-US: {fallback_count} strings")
 
-    # 生成字符串常量
+    # 生成字符串Constants
     strings = []
     sounds = []
     for key, value in merged_strings.items():
         value = value.replace('"', '\\"')
         strings.append(f'        constexpr const char* {key.upper()} = "{value}";')
 
-    # 收集音效文件：以 en-US 为基准，用户语言覆盖
+    # 收集音效Files：以 en-US 为基准，用户Language覆盖
     current_lang_dir = os.path.join(assets_dir, 'locales', lang_code)
     base_lang_dir = os.path.join(assets_dir, 'locales', 'en-US')
     common_dir = os.path.join(assets_dir, 'common')
     
-    # 获取所有可能的音效文件
+    # Get所有可能的音效Files
     base_sounds = get_sound_files(base_lang_dir)
     current_sounds = get_sound_files(current_lang_dir)
     common_sounds = get_sound_files(common_dir)
     
-    # 合并音效文件列表：用户语言覆盖基准语言
+    # 合并音效Files列表：用户Language覆盖基准Language
     all_sound_files = set(base_sounds)
     all_sound_files.update(current_sounds)
     
-    # 音效统计信息
+    # 音效统计Info
     base_sound_count = len(base_sounds)
     user_sound_count = len(current_sounds)
     common_sound_count = len(common_sounds)
@@ -132,10 +132,10 @@ def generate_header(lang_code, output_path):
     if sound_fallback_count > 0:
         print(f"  - Sound fallback to en-US: {sound_fallback_count} sounds")
     
-    # 生成语言特定音效常量
+    # 生成Language特定音效Constants
     for file in sorted(all_sound_files):
         base_name = os.path.splitext(file)[0]
-        # 优先使用当前语言的音效，如果不存在则回退到 en-US
+        # 优先使用当前Language的音效，如果不存在则回退到 en-US
         if file in current_sounds:
             sound_lang = lang_code.replace('-', '_').lower()
         else:
@@ -149,7 +149,7 @@ def generate_header(lang_code, output_path):
         static_cast<size_t>(ogg_{base_name}_end - ogg_{base_name}_start)
         }};''')
     
-    # 生成公共音效常量
+    # 生成公共音效Constants
     for file in sorted(common_sounds):
         base_name = os.path.splitext(file)[0]
         sounds.append(f'''
@@ -168,7 +168,7 @@ def generate_header(lang_code, output_path):
         sounds="\n".join(sorted(sounds))
     )
 
-    # 写入文件
+    # WriteFiles
     os.makedirs(os.path.dirname(output_path), exist_ok=True)
     with open(output_path, 'w', encoding='utf-8') as f:
         f.write(content)

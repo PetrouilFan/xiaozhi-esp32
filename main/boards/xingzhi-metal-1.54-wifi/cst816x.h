@@ -13,10 +13,10 @@
 #define ES8311_VOL_MAX 100
 
 enum class TouchEventType {
-    SINGLE_CLICK,    // 单击事件
-    DOUBLE_CLICK,    // 双击事件
-    LONG_PRESS_START,// 长按开始事件
-    LONG_PRESS_END   // 长按结束事件
+    SINGLE_CLICK,    // 单击Event
+    DOUBLE_CLICK,    // 双击Event
+    LONG_PRESS_START,// 长按开始Event
+    LONG_PRESS_END   // 长按结束Event
 };
 
 struct TouchEvent {
@@ -62,14 +62,14 @@ private:
     TouchPoint_t tp_;                 
 
     bool is_touching_ = false;              
-    int64_t touch_start_time_ = 0;          // 触摸开始时间（us）
-    int64_t last_release_time_ = 0;         // 上次释放时间（us）
-    int click_count_ = 0;                   // 单击计数（双击检测用）
-    bool long_press_started_ = false;       // 长按是否已触发
+    int64_t touch_start_time_ = 0;          // 触摸开始Time（us）
+    int64_t last_release_time_ = 0;         // 上次释放Time（us）
+    int click_count_ = 0;                   // 单击计数（双击Detect用）
+    bool long_press_started_ = false;       // 长按是否Already触发
 
     bool is_volume_long_pressing_ = false;   // 是否处于音量长按调整中
-    int volume_long_press_dir_ = 0;          // 调整方向：1=递增，-1=递减
-    int64_t last_volume_adjust_time_ = 0;    // 上次调整音量的时间（us）
+    int volume_long_press_dir_ = 0;          // 调整Direction：1=递增，-1=递减
+    int64_t last_volume_adjust_time_ = 0;    // 上次调整音量的Time（us）
     const int64_t VOL_ADJ_INTERVAL_US = 200000; // 音量调整间隔（100ms）
     const int VOL_ADJ_STEP = 5;                // 每次调整步长
 

@@ -59,7 +59,7 @@ private:
         });
     }
 
-    // 物联网初始化，添加对 AI 可见设备
+    // 物联网Initialize，添加对 AI 可见设备
     void InitializeTools() {
         led_strip_ = new CircularStrip(BUILTIN_LED_GPIO, 8);
         new LedStripControl(led_strip_);
