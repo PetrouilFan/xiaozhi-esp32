@@ -1,0 +1,4 @@
+# v3 Partition Layout - LittleFS Unified Storage (8MB)
+factory,  0x00, 0x00, 0x1000,  8K,
+nvs,      0x01, 0x02,   0x9000, 16K,
+storage,  0x01, 0x04,  0xD000, ,

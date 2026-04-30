@@ -14,7 +14,11 @@
 
 ### 版本说明
 
-当前 v2 版本与 v1 版本分区表不兼容，所以无法从 v1 版本通过 OTA 升级到 v2 版本。分区表说明参见 [partitions/v2/README.md](partitions/v2/README.md)。
+#### v3.0.0 - LittleFS 统一存储
+当前 v3 版本使用新的 LittleFS 分区布局，与 v2 不兼容。v2 到 v3 不支持 OTA 升级，需要手动烧录固件。分区表说明参见 [partitions/v3/README.md](partitions/v3/README.md)。
+
+#### v2.x - SPIFFS 存储
+v2 版本使用 SPIFFS 存储。详细说明参见 [partitions/v2/README.md](partitions/v2/README.md)。
 
 使用 v1 版本的所有硬件，可以通过手动烧录固件来升级到 v2 版本。
 

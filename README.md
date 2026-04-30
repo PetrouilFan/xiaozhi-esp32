@@ -14,7 +14,13 @@ As a voice interaction entry, the XiaoZhi AI chatbot leverages the AI capabiliti
 
 ## Version Notes
 
-The current v2 version is incompatible with the v1 partition table, so it is not possible to upgrade from v1 to v2 via OTA. For partition table details, see [partitions/v2/README.md](partitions/v2/README.md).
+### v3.0.0 - LittleFS Unified Storage
+The current v3 version uses a new LittleFS partition layout that is incompatible with v2. OTA upgrade from v2 to v3 is NOT supported. A manual firmware flash is required.
+
+For partition table details, see [partitions/v3/README.md](partitions/v3/README.md).
+
+### v2.x - SPIFFS Storage
+The v2 version uses SPIFFS for storage. For details, see [partitions/v2/README.md](partitions/v2/README.md).
 
 All hardware running v1 can be upgraded to v2 by manually flashing the firmware.
 

@@ -1,0 +1,5 @@
+# Partition table for v3.0.0 - LittleFS + App partition (16MB)
+# Name,   Type, SubType, Offset,  Size
+nvs,      0x01, 0x02,   0x9000, 0x4000,
+app,      0x00, 0x00,   0x20000, 0x3F0000,
+storage,  0x01, 0x04,  0x410000, 0xBF0000,
