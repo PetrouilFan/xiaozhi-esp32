@@ -26,6 +26,12 @@ set(SOURCES "audio/audio_codec.cc"
             "display/lvgl_display/gif/gifdec.c"
             "display/lvgl_display/jpg/image_to_jpeg.cpp"
             "display/lvgl_display/jpg/jpeg_to_image.c"
+            "display/procedural/timeline.cc"
+            "display/procedural/scheduler.cc"
+            "display/procedural/eye_shape.cc"
+            "display/procedural/animation_library.cc"
+            "display/procedural/procedural_display.cc"
+            "display/procedural/eye_anim.cc"
             "protocols/protocol.cc"
             "protocols/mqtt_protocol.cc"
             "protocols/websocket_protocol.cc"
@@ -39,7 +45,7 @@ set(SOURCES "audio/audio_codec.cc"
             "main.cc"
             )
 
-set(INCLUDE_DIRS "." "display" "display/lvgl_display" "display/lvgl_display/jpg" "audio" "audio/demuxer" "protocols")
+set(INCLUDE_DIRS "." "display" "display/lvgl_display" "display/lvgl_display/jpg" "display/procedural" "audio" "audio/demuxer" "protocols")
 
 # Add board common files
 list(APPEND SOURCES

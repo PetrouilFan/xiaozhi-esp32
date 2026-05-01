@@ -1,6 +1,9 @@
 #include "wifi_board.h"
 #include "codecs/es8311_audio_codec.h"
 #include "display/lcd_display.h"
+#if CONFIG_USE_PROCEDURAL_DISPLAY
+#include "procedural/procedural_display.h"
+#endif
 #include "application.h"
 #include "button.h"
 #include "config.h"
@@ -243,8 +246,12 @@ private:
         uint8_t data_0xBB[] = { 0x38 };
         esp_lcd_panel_io_tx_param(panel_io, 0xBB, data_0xBB, sizeof(data_0xBB));
 
+#if CONFIG_USE_PROCEDURAL_DISPLAY
+        display_ = new procedural::ProceduralDisplay(panel_io, panel, DISPLAY_WIDTH, DISPLAY_HEIGHT);
+#else
         display_ = new SpiLcdDisplay(panel_io, panel,
                                      DISPLAY_WIDTH, DISPLAY_HEIGHT, DISPLAY_OFFSET_X, DISPLAY_OFFSET_Y, DISPLAY_MIRROR_X, DISPLAY_MIRROR_Y, DISPLAY_SWAP_XY);
+#endif
     }
 
     void InitializeButtons() {
