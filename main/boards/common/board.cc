@@ -29,11 +29,11 @@ std::string Board::GenerateUuid() {
     // 使用 ESP32 的硬件随机数生成器
     esp_fill_random(uuid, sizeof(uuid));
     
-    // SettingsVersion (Version 4) 和变体位
-    uuid[6] = (uuid[6] & 0x0F) | 0x40;    // Version 4
+    // 设置版本 (版本 4) 和变体位
+    uuid[6] = (uuid[6] & 0x0F) | 0x40;    // 版本 4
     uuid[8] = (uuid[8] & 0x3F) | 0x80;    // 变体 1
     
-    // 将字节转换为标准的 UUID 字符串Format
+    // 将字节转换为标准的 UUID 字符串格式
     char uuid_str[37];
     snprintf(uuid_str, sizeof(uuid_str),
         "%02x%02x%02x%02x-%02x%02x-%02x%02x-%02x%02x-%02x%02x%02x%02x%02x%02x",

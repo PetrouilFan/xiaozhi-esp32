@@ -64,7 +64,7 @@ public:
                                                                                               bat_adc_pin_(bat_adc_pin),
                                                                                               bat_power_pin_(bat_power_pin)
     {
-        // Initialize charging pin
+        // 初始化充电引脚
         if (charging_pin_ != GPIO_NUM_NC)
         {
             gpio_config_t io_conf = {};
@@ -75,7 +75,7 @@ public:
             io_conf.pull_up_en = GPIO_PULLUP_ENABLE;
             gpio_config(&io_conf);
         }
-        // InitializeBatteryEnable引脚
+        // 初始化电池使能引脚
         if (bat_power_pin_ != GPIO_NUM_NC)
         {
             gpio_config_t io_conf = {};
@@ -87,7 +87,7 @@ public:
             gpio_config(&io_conf);
         }
         
-        // Initializeadc
+        // 初始化adc
         if (bat_adc_pin_ != GPIO_NUM_NC)
         {
             adc_oneshot_unit_init_cfg_t init_config = {};

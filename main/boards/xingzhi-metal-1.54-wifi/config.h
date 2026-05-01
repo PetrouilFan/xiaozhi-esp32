@@ -42,12 +42,12 @@
 #define DISPLAY_BACKLIGHT_PIN GPIO_NUM_13
 #define DISPLAY_BACKLIGHT_OUTPUT_INVERT false
 
-// Power管理
+// 电源管理
 #define POWER_USB_IN GPIO_NUM_1
-#define Power_Control GPIO_NUM_48               // Power控制引脚
-#define Power_Dec GPIO_NUM_47                   // Power键Detect引脚
-#define POWER_CBS_ADC_UNIT ADC_UNIT_1           // adcDetect公共unit GPIO1
-#define POWER_USBIN_ADC_CHANNEL ADC_CHANNEL_0   // Detectusb是否插入 GPIO1
-#define POWER_BATTERY_ADC_CHANNEL ADC_CHANNEL_6 // BatteryBattery levelDetect GPIO7
+#define Power_Control GPIO_NUM_48               // 电源控制引脚
+#define Power_Dec GPIO_NUM_47                   // 电源键检测引脚
+#define POWER_CBS_ADC_UNIT ADC_UNIT_1           // adc检测公共unit GPIO1
+#define POWER_USBIN_ADC_CHANNEL ADC_CHANNEL_0   // 检测usb是否插入 GPIO1
+#define POWER_BATTERY_ADC_CHANNEL ADC_CHANNEL_6 // 电池电量检测 GPIO7
 
 #endif // _BOARD_CONFIG_H_

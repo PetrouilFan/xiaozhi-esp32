@@ -35,9 +35,9 @@ void ElectronEmojiDisplay::SetupUI() {
 }
 
 void ElectronEmojiDisplay::InitializeElectronEmojis() {
-    ESP_LOGI(TAG, "Electron表情Initialize将由Assets系统Processing");
-    // 表情InitializeAlready移至assets系统,通过DEFAULT_EMOJI_COLLECTION=otto-gifConfiguration
-    // assets.cc会从assets分区LoadGIF表情并Settings到theme
+    ESP_LOGI(TAG, "Electron表情初始化将由Assets系统处理");
+    // 表情初始化已移至assets系统,通过DEFAULT_EMOJI_COLLECTION=otto-gif配置
+    // assets.cc会从assets分区加载GIF表情并设置到theme
     // Note: Default emotion is now set in SetupUI() after LVGL objects are created
 }
 
@@ -87,7 +87,7 @@ void ElectronEmojiDisplay::SetStatus(const char* status) {
         return;
     } else if (strcmp(status, Lang::Strings::CONNECTING) == 0) {
         lv_obj_set_style_text_font(status_label_, &OTTO_ICON_FONT, 0);
-        lv_label_set_text(status_label_, "\xEF\x83\x81");  // U+F0c1 Connect图标
+        lv_label_set_text(status_label_, "\xEF\x83\x81");  // U+F0c1 连接图标
         lv_obj_clear_flag(status_label_, LV_OBJ_FLAG_HIDDEN);
         return;
     } else if (strcmp(status, Lang::Strings::STANDBY) == 0) {

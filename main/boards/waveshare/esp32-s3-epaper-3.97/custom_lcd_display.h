@@ -29,12 +29,12 @@ public:
                      bool swap_xy, custom_epd_spi_t _epd_spi_data);
     ~CustomEpdDisplay();
 
-    void EPD_Init();    /* 墨水屏Initialize */
-    void EPD_Clear();   /* Clear屏幕 */
+    void EPD_Init();    /* 墨水屏初始化 */
+    void EPD_Clear();   /* 清空屏幕 */
     void EPD_Display(); /* 刷buffer到墨水屏 */
     void EPD_Sleep();
 
-    /*快速Refresh*/
+    /*快速刷新*/
     void EPD_DisplayPartBaseImage();
     void EPD_Init_Partial();
     void EPD_DisplayPart();

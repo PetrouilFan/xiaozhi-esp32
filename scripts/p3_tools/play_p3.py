@@ -1,4 +1,4 @@
-# 播放p3Format的音频Files
+# 播放p3格式的音频文件
 import opuslib
 import struct
 import numpy as np
@@ -7,18 +7,18 @@ import argparse
 
 def play_p3_file(input_file):
     """
-    播放p3Format的音频Files
-    p3Format: [1字节Class型, 1字节保留, 2字节Length, Opus数据]
+    播放p3格式的音频文件
+    p3格式: [1字节类型, 1字节保留, 2字节长度, Opus数据]
     """
-    # InitializeOpus解码器
+    # 初始化Opus解码器
     sample_rate = 16000  # 采样率固定为16000Hz
     channels = 1  # 单声道
     decoder = opuslib.Decoder(sample_rate, channels)
     
-    # 帧Size (60ms)
+    # 帧大小 (60ms)
     frame_size = int(sample_rate * 60 / 1000)
     
-    # Open音频流
+    # 打开音频流
     stream = sd.OutputStream(
         samplerate=sample_rate,
         channels=channels,
@@ -28,10 +28,10 @@ def play_p3_file(input_file):
     
     try:
         with open(input_file, 'rb') as f:
-            print(f"Currently播放: {input_file}")
+            print(f"正在播放: {input_file}")
             
             while True:
-                # Read头部 (4字节)
+                # 读取头部 (4字节)
                 header = f.read(4)
                 if not header or len(header) < 4:
                     break
@@ -39,7 +39,7 @@ def play_p3_file(input_file):
                 # 解析头部
                 packet_type, reserved, data_len = struct.unpack('>BBH', header)
                 
-                # ReadOpus数据
+                # 读取Opus数据
                 opus_data = f.read(data_len)
                 if not opus_data or len(opus_data) < data_len:
                     break
@@ -54,15 +54,15 @@ def play_p3_file(input_file):
                 stream.write(audio_array)
                 
     except KeyboardInterrupt:
-        print("\n播放AlreadyStop")
+        print("\n播放已停止")
     finally:
         stream.stop()
         stream.close()
-        print("播放Done")
+        print("播放完成")
 
 def main():
-    parser = argparse.ArgumentParser(description='播放p3Format的音频Files')
-    parser.add_argument('input_file', help='输入的p3Files路径')
+    parser = argparse.ArgumentParser(description='播放p3格式的音频文件')
+    parser.add_argument('input_file', help='输入的p3文件路径')
     args = parser.parse_args()
     
     play_p3_file(args.input_file)

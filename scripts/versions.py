@@ -10,7 +10,7 @@ import json
 import requests
 from requests.exceptions import RequestException
 
-# 切换到项目根Directory
+# 切换到项目根目录
 os.chdir(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 def get_chip_id_string(chip_id):
@@ -178,33 +178,33 @@ def upload_dir_to_oss(source_dir, target_dir):
 
 def post_info_to_server(info):
     """
-    将固件InfoSend到Server
+    将固件信息发送到服务器
     
     Args:
-        info: Include固件Info的字典
+        info: 包含固件信息的字典
     """
     try:
-        # 从环境VariablesGetServerURL和token
+        # 从环境变量获取服务器URL和token
         server_url = os.environ.get('VERSIONS_SERVER_URL')
         server_token = os.environ.get('VERSIONS_TOKEN')
         
         if not server_url or not server_token:
             raise Exception("Missing SERVER_URL or TOKEN in environment variables")
 
-        # PreparePlease求头和数据
+        # 准备请求头和数据
         headers = {
             'Authorization': f'Bearer {server_token}',
             'Content-Type': 'application/json'
         }
         
-        # SendPOSTPlease求
+        # 发送POST请求
         response = requests.post(
             server_url,
             headers=headers,
             json={'jsonData': json.dumps(info)}
         )
         
-        # CheckResponseStatus
+        # 检查响应状态
         response.raise_for_status()
         
         print(f"Successfully uploaded version info for tag: {info['tag']}")

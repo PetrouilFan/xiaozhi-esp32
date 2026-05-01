@@ -67,7 +67,7 @@ public:
     void Stand(int period = 1500);
     void Stretch(int period = 2000);
     void Shake(int period = 1000);
-    void Sleep();  // 睡觉Action
+    void Sleep();  // 睡觉动作
 
     // -- Servo limiter
     void EnableServoLimit(int speed_limit_degree_per_sec = SERVO_LIMIT_DEFAULT);

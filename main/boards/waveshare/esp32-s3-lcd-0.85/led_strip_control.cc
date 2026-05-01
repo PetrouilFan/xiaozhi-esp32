@@ -24,7 +24,7 @@ StripColor LedStripControl::RGBToColor(int red, int green, int blue) {
 
 LedStripControl::LedStripControl(CircularStrip* led_strip) 
     : led_strip_(led_strip) {
-    // 从Settings中Read亮度等级
+    // 从设置中读取亮度等级
     Settings settings("led_strip");
     brightness_level_ = settings.GetInt("brightness", 4);  // 默认等级4
     led_strip_->SetBrightness(LevelToBrightness(brightness_level_), 4);
@@ -46,7 +46,7 @@ LedStripControl::LedStripControl(CircularStrip* led_strip)
             brightness_level_ = level;
             led_strip_->SetBrightness(LevelToBrightness(brightness_level_), 4);
 
-            // SaveSettings
+            // 保存设置
             Settings settings("led_strip", true);
             settings.SetInt("brightness", brightness_level_);
 

@@ -54,11 +54,11 @@ public:
         WriteReg(PI4IO_REG_CHIP_RESET, 0xFF);
         uint8_t data = ReadReg(PI4IO_REG_CHIP_RESET);
         WriteReg(PI4IO_REG_IO_DIR, 0b01111111);      // 0: input 1: output
-        WriteReg(PI4IO_REG_OUT_H_IM, 0b00000000);    // 使用到的引脚Close High-Impedance
+        WriteReg(PI4IO_REG_OUT_H_IM, 0b00000000);    // 使用到的引脚关闭 High-Impedance
         WriteReg(PI4IO_REG_PULL_SEL, 0b01111111);    // pull up/down select, 0 down, 1 up
         WriteReg(PI4IO_REG_PULL_EN, 0b01111111);     // pull up/down enable, 0 disable, 1 enable
         WriteReg(PI4IO_REG_IN_DEF_STA, 0b10000000);  // P1, P7 默认高电平
-        WriteReg(PI4IO_REG_INT_MASK, 0b01111111);    // P7 中断Enable 0 enable, 1 disable
+        WriteReg(PI4IO_REG_INT_MASK, 0b01111111);    // P7 中断使能 0 enable, 1 disable
         WriteReg(PI4IO_REG_OUT_SET, 0b01110110);     // Output Port Register P1(SPK_EN), P2(EXT5V_EN), P4(LCD_RST), P5(TP_RST), P6(CAM)RST 输出高电平
     }
 
@@ -72,11 +72,11 @@ public:
         WriteReg(PI4IO_REG_CHIP_RESET, 0xFF);
         uint8_t data = ReadReg(PI4IO_REG_CHIP_RESET);
         WriteReg(PI4IO_REG_IO_DIR, 0b10111001);      // 0: input 1: output
-        WriteReg(PI4IO_REG_OUT_H_IM, 0b00000110);    // 使用到的引脚Close High-Impedance
+        WriteReg(PI4IO_REG_OUT_H_IM, 0b00000110);    // 使用到的引脚关闭 High-Impedance
         WriteReg(PI4IO_REG_PULL_SEL, 0b10111001);    // pull up/down select, 0 down, 1 up
         WriteReg(PI4IO_REG_PULL_EN, 0b11111001);     // pull up/down enable, 0 disable, 1 enable
         WriteReg(PI4IO_REG_IN_DEF_STA, 0b01000000);  // P6 默认高电平
-        WriteReg(PI4IO_REG_INT_MASK, 0b10111111);    // P6 中断Enable 0 enable, 1 disable
+        WriteReg(PI4IO_REG_INT_MASK, 0b10111111);    // P6 中断使能 0 enable, 1 disable
         WriteReg(PI4IO_REG_OUT_SET, 0b10001001);     // Output Port Register P0(WLAN_PWR_EN), P3(USB5V_EN), P7(CHG_EN) 输出高电平
     }
 
@@ -341,7 +341,7 @@ private:
         lcd_dev_config.bits_per_pixel = 24;
         lcd_dev_config.vendor_config = &vendor_config;
 
-        // 使用实际的 ST7123 驱动Functions
+        // 使用实际的 ST7123 驱动函数
         ret = esp_lcd_new_panel_st7123(io, &lcd_dev_config, &disp_panel);
         if (ret != ESP_OK) {
             ESP_LOGE(TAG, "New LCD panel ST7123 failed");
@@ -422,7 +422,7 @@ private:
     void InitializeDisplay() {
         // after tp reset, wait for 100ms to ensure the I2C bus is stable
         vTaskDelay(pdMS_TO_TICKS(100));
-        // Detect ST7123 触摸屏 (I2C地址 0x55)
+        // 检测 ST7123 触摸屏 (I2C地址 0x55)
         esp_err_t ret = i2c_master_probe(i2c_bus_, ST7123_TOUCH_I2C_ADDRESS, 200);
         if (ret == ESP_OK) {
             ESP_LOGI(TAG, "Detected ST7123 at 0x%02X, initializing ST7123 display", ST7123_TOUCH_I2C_ADDRESS);
@@ -524,7 +524,7 @@ public:
         if (pi4ioe2_) {
             uint8_t value = pi4ioe2_->ReadOutSet();
             if (en) {
-                clrbit(value, 5);  // P5 = CHG_QC_EN (低电平Enable)
+                clrbit(value, 5);  // P5 = CHG_QC_EN (低电平使能)
             } else {
                 setbit(value, 5);
             }

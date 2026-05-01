@@ -70,7 +70,7 @@ enum PowerSupply {
 #define DRV_IO_EXP_OUTPUT_MASK 0XFFFC
 #define DRV_IO_EXP_INPUT_MASK 0x0003
 
-/* 相机引脚Configuration */
+/* 相机引脚配置 */
 #define CAM_PIN_PWDN    GPIO_NUM_NC
 #define CAM_PIN_RESET   GPIO_NUM_NC
 #define CAM_PIN_VSYNC   GPIO_NUM_6

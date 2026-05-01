@@ -4,7 +4,7 @@
 #include "mcp_server.h"
 #include "settings.h"
 
-// 可复用的按键说话ModeMCP工具Class
+// 可复用的按键说话模式MCP工具类
 class PressToTalkMcpTool {
 private:
     bool press_to_talk_enabled_;
@@ -12,17 +12,17 @@ private:
 public:
     PressToTalkMcpTool();
     
-    // Initialize工具，Register到MCPServer
+    // 初始化工具，注册到MCP服务器
     void Initialize();
     
-    // Get当前按键说话ModeStatus
+    // 获取当前按键说话模式状态
     bool IsPressToTalkEnabled() const;
 
 private:
-    // MCP工具的回调Functions
+    // MCP工具的回调函数
     ReturnValue HandleSetPressToTalk(const PropertyList& properties);
     
-    // 内部Method：Settingspress to talkStatus并Save到Settings
+    // 内部方法：设置press to talk状态并保存到设置
     void SetPressToTalkEnabled(bool enabled);
 };
 

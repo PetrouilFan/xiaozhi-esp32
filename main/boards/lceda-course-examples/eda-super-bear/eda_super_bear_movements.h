@@ -75,7 +75,7 @@ public:
     void Crusaito(float steps = 1, int period = 900, int height = 20, int dir = FORWARD);
     void Flapping(float steps = 1, int period = 1000, int height = 20, int dir = FORWARD);
 
-    // -- 手部Action
+    // -- 手部动作
     void HandsUp(int period = 1000, int dir = 0);      // 双手举起
     void HandsDown(int period = 1000, int dir = 0);    // 双手放下
     void HandWave(int period = 1000, int dir = LEFT);  // 挥手

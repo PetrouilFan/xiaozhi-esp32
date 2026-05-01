@@ -212,16 +212,16 @@ void Otto::SetRestState(bool state) {
 ///////////////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-//-- 统一手部ActionFunctions
+//-- 统一手部动作函数
 //--  Parameters:
-//--    action: ActionClass型 1=举左手, 2=举右手, 3=举双手, 4=放左手, 5=放右手, 6=放双手,
+//--    action: 动作类型 1=举左手, 2=举右手, 3=举双手, 4=放左手, 5=放右手, 6=放双手,
 //--            7=挥左手, 8=挥右手, 9=挥双手, 10=拍打左手, 11=拍打右手, 12=拍打双手
 //--    times: 重复次数
-//--    amount: Action幅度 (10-50)
-//--    period: ActionTime
+//--    amount: 动作幅度 (10-50)
+//--    period: 动作时间
 //---------------------------------------------------------
 void Otto::HandAction(int action, int times, int amount, int period) {
-    // 限制Parameters范围
+    // 限制参数范围
     times = 2 * std::max(3, std::min(100, times));
     amount = std::max(10, std::min(50, amount));
     period = std::max(100, std::min(1000, period));
@@ -251,7 +251,7 @@ void Otto::HandAction(int action, int times, int amount, int period) {
         case 4:  // 放左手
         case 5:  // 放右手
         case 6:  // 放双手
-            // 回到初始Position
+            // 回到初始位置
             memcpy(current_positions, servo_initial_, sizeof(current_positions));
             MoveServos(period, current_positions);
             break;
@@ -340,15 +340,15 @@ void Otto::HandAction(int action, int times, int amount, int period) {
 }
 
 //---------------------------------------------------------
-//-- 统一身体ActionFunctions
+//-- 统一身体动作函数
 //--  Parameters:
-//--    action: ActionClass型 1=左转, 2=右转，3=回中心
+//--    action: 动作类型 1=左转, 2=右转，3=回中心
 //--    times: 转动次数
-//--    amount: 旋转Angle (0-90度，以90度为中心左右旋转)
-//--    period: ActionTime
+//--    amount: 旋转角度 (0-90度，以90度为中心左右旋转)
+//--    period: 动作时间
 //---------------------------------------------------------
 void Otto::BodyAction(int action, int times, int amount, int period) {
-    // 限制Parameters范围
+    // 限制参数范围
     times = std::max(1, std::min(10, times));
     amount = std::max(0, std::min(90, amount));
     period = std::max(500, std::min(3000, period));
@@ -378,7 +378,7 @@ void Otto::BodyAction(int action, int times, int amount, int period) {
             target_angle = body_center;
             break;
         default:
-            return;  // 无效Action
+            return;  // 无效动作
     }
 
     current_positions[BODY] = target_angle;
@@ -387,15 +387,15 @@ void Otto::BodyAction(int action, int times, int amount, int period) {
 }
 
 //---------------------------------------------------------
-//-- 统一头部ActionFunctions
+//-- 统一头部动作函数
 //--  Parameters:
-//--    action: ActionClass型 1=抬头, 2=低头, 3=点头, 4=回中心, 5=连续点头
+//--    action: 动作类型 1=抬头, 2=低头, 3=点头, 4=回中心, 5=连续点头
 //--    times: 重复次数 (仅对连续点头有效)
-//--    amount: Angle偏移 (1-15度范围内)
-//--    period: ActionTime
+//--    amount: 角度偏移 (1-15度范围内)
+//--    period: 动作时间
 //---------------------------------------------------------
 void Otto::HeadAction(int action, int times, int amount, int period) {
-    // 限制Parameters范围
+    // 限制参数范围
     times = std::max(1, std::min(10, times));
     amount = std::max(1, std::min(15, abs(amount)));
     period = std::max(300, std::min(3000, period));
@@ -409,16 +409,16 @@ void Otto::HeadAction(int action, int times, int amount, int period) {
         }
     }
 
-    int head_center = 90;  // 头部中心Position
+    int head_center = 90;  // 头部中心位置
 
     switch (action) {
         case 1:                                              // 抬头
-            current_positions[HEAD] = head_center + amount;  // 抬头是增加Angle
+            current_positions[HEAD] = head_center + amount;  // 抬头是增加角度
             MoveServos(period, current_positions);
             break;
 
         case 2:                                              // 低头
-            current_positions[HEAD] = head_center - amount;  // 低头是减少Angle
+            current_positions[HEAD] = head_center - amount;  // 低头是减少角度
             MoveServos(period, current_positions);
             break;
 
@@ -438,7 +438,7 @@ void Otto::HeadAction(int action, int times, int amount, int period) {
             MoveServos(period / 3, current_positions);
             break;
 
-        case 4:  // 回到中心Position
+        case 4:  // 回到中心位置
             current_positions[HEAD] = head_center;
             MoveServos(period, current_positions);
             break;
@@ -462,7 +462,7 @@ void Otto::HeadAction(int action, int times, int amount, int period) {
             break;
 
         default:
-            // 无效Action，回到中心
+            // 无效动作，回到中心
             current_positions[HEAD] = head_center;
             MoveServos(period, current_positions);
             break;

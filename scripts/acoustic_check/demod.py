@@ -7,37 +7,37 @@ from collections import deque
 
 
 class TraceGoertzel:
-    """实时Goertzel算法Implement"""
+    """实时Goertzel算法实现"""
     
     def __init__(self, freq: float, n: int):
         """
-        InitializeGoertzel算法
+        初始化Goertzel算法
         
         Args:
-            freq: 归一化Frequency (目标Frequency/采样Frequency)
-            n: 窗口Size
+            freq: 归一化频率 (目标频率/采样频率)
+            n: 窗口大小
         """
         self.freq = freq
         self.n = n
         
-        # 预计算系数 - 与参考Code一致
+        # 预计算系数 - 与参考代码一致
         self.k = int(freq * n)
         self.w = 2.0 * np.pi * freq
         self.cw = np.cos(self.w)
         self.sw = np.sin(self.w)
         self.c = 2.0 * self.cw
         
-        # InitializeStatusVariables - 使用deque存储最近两个值
+        # 初始化状态变量 - 使用deque存储最近两个值
         self.zs = deque([0.0, 0.0], maxlen=2)
     
     def reset(self):
-        """重置算法Status"""
+        """重置算法状态"""
         self.zs.clear()
         self.zs.extend([0.0, 0.0])
     
     def __call__(self, xs):
         """
-        Processing一组采样点 - 与参考Code一致的接口
+        处理一组采样点 - 与参考代码一致的接口
         
         Args:
             xs: 采样点序列
@@ -49,12 +49,12 @@ class TraceGoertzel:
         for x in xs:
             z1, z2 = self.zs[-1], self.zs[-2]  # Z[-1], Z[-2]
             z0 = x + self.c * z1 - z2  # S[n] = x[n] + C * S[n-1] - S[n-2]
-            self.zs.append(float(z0))  # Update序列
+            self.zs.append(float(z0))  # 更新序列
         return self.amp
     
     @property
     def amp(self) -> float:
-        """计算当前振幅 - 与参考Code一致"""
+        """计算当前振幅 - 与参考代码一致"""
         z1, z2 = self.zs[-1], self.zs[-2]
         ip = self.cw * z1 - z2
         qp = self.sw * z1
@@ -67,16 +67,16 @@ class PairGoertzel:
     def __init__(self, f_sample: int, f_space: int, f_mark: int, 
                  bit_rate: int, win_size: int):
         """
-        Initialize双频解调器
+        初始化双频解调器
         
         Args:
-            f_sample: 采样Frequency
-            f_space: SpaceFrequency (通常对应0)
-            f_mark: MarkFrequency (通常对应1)
+            f_sample: 采样频率
+            f_space: Space频率 (通常对应0)
+            f_mark: Mark频率 (通常对应1)
             bit_rate: 比特率
-            win_size: Goertzel窗口Size
+            win_size: Goertzel窗口大小
         """
-        assert f_sample % bit_rate == 0, "采样Frequency必须是比特率的整数倍"
+        assert f_sample % bit_rate == 0, "采样频率必须是比特率的整数倍"
         
         self.Fs = f_sample
         self.F0 = f_space
@@ -84,11 +84,11 @@ class PairGoertzel:
         self.bit_rate = bit_rate
         self.n_per_bit = int(f_sample // bit_rate)  # 每个比特的采样点数
         
-        # 计算归一化Frequency
+        # 计算归一化频率
         f1 = f_mark / f_sample
         f0 = f_space / f_sample
         
-        # InitializeGoertzel算法
+        # 初始化Goertzel算法
         self.g0 = TraceGoertzel(freq=f0, n=win_size)
         self.g1 = TraceGoertzel(freq=f1, n=win_size)
         
@@ -100,23 +100,23 @@ class PairGoertzel:
     
     def __call__(self, s: float):
         """
-        Processing单个采样点 - 与参考Code一致的接口
+        处理单个采样点 - 与参考代码一致的接口
         
         Args:
             s: 采样点值
             
         Returns:
-            (amp0, amp1, p1_prob) - 空间Frequency振幅，标记Frequency振幅，标记概率
+            (amp0, amp1, p1_prob) - 空间频率振幅，标记频率振幅，标记概率
         """
         self.in_buffer.append(s)
         self.out_count += 1
         
         amp0, amp1, p1_prob = 0, 0, None
         
-        # 每个比特Period输出一次结果
+        # 每个比特周期输出一次结果
         if self.out_count >= self.n_per_bit:
-            amp0 = self.g0(self.in_buffer)  # 计算spaceFrequency振幅
-            amp1 = self.g1(self.in_buffer)  # 计算markFrequency振幅
+            amp0 = self.g0(self.in_buffer)  # 计算space频率振幅
+            amp1 = self.g1(self.in_buffer)  # 计算mark频率振幅
             p1_prob = amp1 / (amp0 + amp1 + 1e-8)  # 计算mark概率
             self.out_count = 0
             
@@ -130,14 +130,14 @@ class RealTimeAFSKDecoder:
                  space_freq: int = 1500, bitrate: int = 100, 
                  s_goertzel: int = 9, threshold: float = 0.5):
         """
-        Initialize实时AFSK解码器
+        初始化实时AFSK解码器
         
         Args:
-            f_sample: 采样Frequency
-            mark_freq: MarkFrequency
-            space_freq: SpaceFrequency 
+            f_sample: 采样频率
+            mark_freq: Mark频率
+            space_freq: Space频率 
             bitrate: 比特率
-            s_goertzel: Goertzel窗口Size系数 (win_size = f_sample // mark_freq * s_goertzel)
+            s_goertzel: Goertzel窗口大小系数 (win_size = f_sample // mark_freq * s_goertzel)
             threshold: 判决门限
         """
         self.f_sample = f_sample
@@ -146,24 +146,24 @@ class RealTimeAFSKDecoder:
         self.bitrate = bitrate
         self.threshold = threshold
         
-        # 计算窗口Size - 与参考Code一致
+        # 计算窗口大小 - 与参考代码一致
         win_size = int(f_sample / mark_freq * s_goertzel)
         
-        # Initialize解调器
+        # 初始化解调器
         self.demodulator = PairGoertzel(f_sample, space_freq, mark_freq, 
                                        bitrate, win_size)
         
-        # 帧Define - 与参考Code一致
+        # 帧定义 - 与参考代码一致
         self.start_bytes = b'\x01\x02'
         self.end_bytes = b'\x03\x04'
         self.start_bits = "".join(format(int(x), '08b') for x in self.start_bytes)
         self.end_bits = "".join(format(int(x), '08b') for x in self.end_bytes)
 
-        # Status机
+        # 状态机
         self.state = "idle" # idle / entering
         
         # 存储解调结果
-        self.buffer_prelude:deque = deque(maxlen=len(self.start_bits)) # 判断是否Start
+        self.buffer_prelude:deque = deque(maxlen=len(self.start_bits)) # 判断是否启动
         self.indicators = []  # 存储概率序列
         self.signal_bits = ""  # 存储比特序列
         self.text_cache = ""
@@ -178,7 +178,7 @@ class RealTimeAFSKDecoder:
     
     def process_audio(self, samples: np.array) -> str:
         """
-        Processing音频数据并Return解码文本
+        处理音频数据并返回解码文本
         
         Args:
             audio_data: 音频字节数据 (16-bit PCM)
@@ -187,7 +187,7 @@ class RealTimeAFSKDecoder:
             新解码的文本
         """       
         new_text = "" 
-        # 逐个Processing采样点
+        # 逐个处理采样点
         for sample in samples:
             amp0, amp1, p1_prob = self.demodulator(sample)
             # 如果有概率输出，记录并判决
@@ -205,11 +205,11 @@ class RealTimeAFSKDecoder:
                         pass
                 self.indicators.append(p1_prob)
 
-                # CheckStatus机
+                # 检查状态机
                 if self.state == "idle" and "".join(self.buffer_prelude) == self.start_bits:
                     self.state = "entering"
                     self.text_cache = ""
-                    self.signal_bits = ""  # Clear比特序列
+                    self.signal_bits = ""  # 清空比特序列
                     self.buffer_prelude.clear()
                 elif self.state == "entering" and ("".join(self.buffer_prelude) == self.end_bits or len(self.signal_bits) >= 256):
                     self.state = "idle"
@@ -247,27 +247,27 @@ class RealTimeAFSKDecoder:
             byte_val = int(byte_bits, 2)
             
             # 尝试解码为ASCII字符
-            if 32 <= byte_val <= 126:  # 可PrintASCII字符
+            if 32 <= byte_val <= 126:  # 可打印ASCII字符
                 decoded_text += chr(byte_val)
             elif byte_val == 0:  # NULL字符，忽略
                 continue
             else:
-                # 非可Print字符pass，以十六进制显示
+                # 非可打印字符pass，以十六进制显示
                 pass
                 # decoded_text += f"\\x{byte_val:02X}"
         
         return decoded_text
     
     def clear(self):
-        """Clear解码Status"""
+        """清空解码状态"""
         self.indicators = []
         self.signal_bits = ""
         self.decoded_messages = []
         self.total_bits_received = 0
-        print("解码器StatusAlreadyClear")
+        print("解码器状态已清空")
     
     def get_stats(self) -> dict:
-        """Get解码统计Info"""
+        """获取解码统计信息"""
         return {
             'prelude_bits': "".join(self.buffer_prelude),
             "state": self.state,

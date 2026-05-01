@@ -1,5 +1,5 @@
 /*
-    EdaRobot机器人控制器 - MCP协议Version
+    EdaRobot机器人控制器 - MCP协议版本
 */
 
 #include <cJSON.h>
@@ -60,7 +60,7 @@ private:
 
         while (true) {
             if (xQueueReceive(controller->action_queue_, &params, pdMS_TO_TICKS(1000)) == pdTRUE) {
-                ESP_LOGI(TAG, "执行Action: %d", params.action_type);
+                ESP_LOGI(TAG, "执行动作: %d", params.action_type);
                 controller->is_action_in_progress_ = true;
 
                 switch (params.action_type) {
@@ -144,13 +144,13 @@ private:
     }
 
     void QueueAction(int action_type, int steps, int speed, int direction, int amount) {
-        // Check手部Action
+        // 检查手部动作
         if ((action_type >= ACTION_HANDS_UP && action_type <= ACTION_HAND_WAVE) && !has_hands_) {
-            ESP_LOGW(TAG, "尝试执行手部Action，但机器人没有Configuration手部舵机");
+            ESP_LOGW(TAG, "尝试执行手部动作，但机器人没有配置手部舵机");
             return;
         }
 
-        ESP_LOGI(TAG, "Action控制: Class型=%d, 步数=%d, Speed=%d, Direction=%d, 幅度=%d", action_type, steps,
+        ESP_LOGI(TAG, "动作控制: 类型=%d, 步数=%d, 速度=%d, 方向=%d, 幅度=%d", action_type, steps,
                  speed, direction, amount);
 
         EdaRobotActionParams params = {action_type, steps, speed, direction, amount};
@@ -168,7 +168,7 @@ private:
         int left_hand = settings.GetInt("left_hand", 0);
         int right_hand = settings.GetInt("right_hand", 0);
 
-        ESP_LOGI(TAG, "从NVSLoad微调Settings: 左腿=%d, 右腿=%d, 左脚=%d, 右脚=%d, 左手=%d, 右手=%d",
+        ESP_LOGI(TAG, "从NVS加载微调设置: 左腿=%d, 右腿=%d, 左脚=%d, 右脚=%d, 左手=%d, 右手=%d",
                  left_leg, right_leg, left_foot, right_foot, left_hand, right_hand);
 
         edarobot_.SetTrims(left_leg, right_leg, left_foot, right_foot, left_hand, right_hand);
@@ -180,13 +180,13 @@ public:
                    RIGHT_HAND_PIN);
 
         has_hands_ = (LEFT_HAND_PIN != -1 && RIGHT_HAND_PIN != -1);
-        ESP_LOGI(TAG, "EdaRobot机器人Initialize%s手部舵机", has_hands_ ? "带" : "不带");
+        ESP_LOGI(TAG, "EdaRobot机器人初始化%s手部舵机", has_hands_ ? "带" : "不带");
 
         LoadTrimsFromNVS();
 
         action_queue_ = xQueueCreate(10, sizeof(EdaRobotActionParams));
 
-        QueueAction(ACTION_HOME, 1, 1000, 1, 0);  // direction=1表示Reset手部
+        QueueAction(ACTION_HOME, 1, 1000, 1, 0);  // direction=1表示复位手部
 
         RegisterMcpTools();
     }
@@ -194,12 +194,12 @@ public:
     void RegisterMcpTools() {
         auto& mcp_server = McpServer::GetInstance();
 
-        ESP_LOGI(TAG, "Starting MCP tools registration...");
+        ESP_LOGI(TAG, "开始注册MCP工具...");
 
-        // 基础MoveAction
+        // 基础移动动作
         mcp_server.AddTool("self.edarobot.walk_forward",
-                           "行走。steps: 行走步数(1-100); speed: 行走Speed(500-1500，数值越小越快); "
-                           "direction: 行走Direction(-1=后退, 1=前进); arm_swing: 手臂摆动幅度(0-170度)",
+                           "行走。steps: 行走步数(1-100); speed: 行走速度(500-1500，数值越小越快); "
+                           "direction: 行走方向(-1=后退, 1=前进); arm_swing: 手臂摆动幅度(0-170度)",
                            PropertyList({Property("steps", kPropertyTypeInteger, 3, 1, 100),
                                          Property("speed", kPropertyTypeInteger, 1000, 500, 1500),
                                          Property("arm_swing", kPropertyTypeInteger, 50, 0, 170),
@@ -214,8 +214,8 @@ public:
                            });
 
         mcp_server.AddTool("self.edarobot.turn_left",
-                           "转身。steps: 转身步数(1-100); speed: 转身Speed(500-1500，数值越小越快); "
-                           "direction: 转身Direction(1=左转, -1=右转); arm_swing: 手臂摆动幅度(0-170度)",
+                           "转身。steps: 转身步数(1-100); speed: 转身速度(500-1500，数值越小越快); "
+                           "direction: 转身方向(1=左转, -1=右转); arm_swing: 手臂摆动幅度(0-170度)",
                            PropertyList({Property("steps", kPropertyTypeInteger, 3, 1, 100),
                                          Property("speed", kPropertyTypeInteger, 1000, 500, 1500),
                                          Property("arm_swing", kPropertyTypeInteger, 50, 0, 170),
@@ -230,7 +230,7 @@ public:
                            });
 
         mcp_server.AddTool("self.edarobot.jump",
-                           "跳跃。steps: 跳跃次数(1-100); speed: 跳跃Speed(500-1500，数值越小越快)",
+                           "跳跃。steps: 跳跃次数(1-100); speed: 跳跃速度(500-1500，数值越小越快)",
                            PropertyList({Property("steps", kPropertyTypeInteger, 1, 1, 100),
                                          Property("speed", kPropertyTypeInteger, 1000, 500, 1500)}),
                            [this](const PropertyList& properties) -> ReturnValue {
@@ -240,10 +240,10 @@ public:
                                return true;
                            });
 
-        // 特殊Action
+        // 特殊动作
         mcp_server.AddTool("self.edarobot.swing",
                            "左右摇摆。steps: 摇摆次数(1-100); speed: "
-                           "摇摆Speed(500-1500，数值越小越快); amount: 摇摆幅度(0-170度)",
+                           "摇摆速度(500-1500，数值越小越快); amount: 摇摆幅度(0-170度)",
                            PropertyList({Property("steps", kPropertyTypeInteger, 3, 1, 100),
                                          Property("speed", kPropertyTypeInteger, 1000, 500, 1500),
                                          Property("amount", kPropertyTypeInteger, 30, 0, 170)}),
@@ -256,8 +256,8 @@ public:
                            });
 
         mcp_server.AddTool("self.edarobot.moonwalk",
-                           "太空步。steps: 太空步步数(1-100); speed: Speed(500-1500，数值越小越快); "
-                           "direction: Direction(1=左, -1=右); amount: 幅度(0-170度)",
+                           "太空步。steps: 太空步步数(1-100); speed: 速度(500-1500，数值越小越快); "
+                           "direction: 方向(1=左, -1=右); amount: 幅度(0-170度)",
                            PropertyList({Property("steps", kPropertyTypeInteger, 3, 1, 100),
                                          Property("speed", kPropertyTypeInteger, 1000, 500, 1500),
                                          Property("direction", kPropertyTypeInteger, 1, -1, 1),
@@ -273,7 +273,7 @@ public:
 
         mcp_server.AddTool("self.edarobot.bend",
                            "弯曲身体。steps: 弯曲次数(1-100); speed: "
-                           "弯曲Speed(500-1500，数值越小越快); direction: 弯曲Direction(1=左, -1=右)",
+                           "弯曲速度(500-1500，数值越小越快); direction: 弯曲方向(1=左, -1=右)",
                            PropertyList({Property("steps", kPropertyTypeInteger, 1, 1, 100),
                                          Property("speed", kPropertyTypeInteger, 1000, 500, 1500),
                                          Property("direction", kPropertyTypeInteger, 1, -1, 1)}),
@@ -286,7 +286,7 @@ public:
                            });
 
         mcp_server.AddTool("self.edarobot.shake_leg",
-                           "摇腿。steps: 摇腿次数(1-100); speed: 摇腿Speed(500-1500，数值越小越快); "
+                           "摇腿。steps: 摇腿次数(1-100); speed: 摇腿速度(500-1500，数值越小越快); "
                            "direction: 腿部选择(1=左腿, -1=右腿)",
                            PropertyList({Property("steps", kPropertyTypeInteger, 1, 1, 100),
                                          Property("speed", kPropertyTypeInteger, 1000, 500, 1500),
@@ -301,7 +301,7 @@ public:
 
         mcp_server.AddTool("self.edarobot.updown",
                            "上下运动。steps: 上下运动次数(1-100); speed: "
-                           "运动Speed(500-1500，数值越小越快); amount: 运动幅度(0-170度)",
+                           "运动速度(500-1500，数值越小越快); amount: 运动幅度(0-170度)",
                            PropertyList({Property("steps", kPropertyTypeInteger, 3, 1, 100),
                                          Property("speed", kPropertyTypeInteger, 1000, 500, 1500),
                                          Property("amount", kPropertyTypeInteger, 20, 0, 170)}),
@@ -313,11 +313,11 @@ public:
                                return true;
                            });
 
-        // 手部Action（仅在有手部舵机时可用）
+        // 手部动作（仅在有手部舵机时可用）
         if (has_hands_) {
             mcp_server.AddTool(
                 "self.edarobot.hands_up",
-                "举手。speed: 举手Speed(500-1500，数值越小越快); direction: 手部选择(1=左手, "
+                "举手。speed: 举手速度(500-1500，数值越小越快); direction: 手部选择(1=左手, "
                 "-1=右手, 0=双手)",
                 PropertyList({Property("speed", kPropertyTypeInteger, 1000, 500, 1500),
                               Property("direction", kPropertyTypeInteger, 1, -1, 1)}),
@@ -330,7 +330,7 @@ public:
 
             mcp_server.AddTool(
                 "self.edarobot.hands_down",
-                "放手。speed: 放手Speed(500-1500，数值越小越快); direction: 手部选择(1=左手, "
+                "放手。speed: 放手速度(500-1500，数值越小越快); direction: 手部选择(1=左手, "
                 "-1=右手, 0=双手)",
                 PropertyList({Property("speed", kPropertyTypeInteger, 1000, 500, 1500),
                               Property("direction", kPropertyTypeInteger, 1, -1, 1)}),
@@ -343,7 +343,7 @@ public:
 
             mcp_server.AddTool(
                 "self.edarobot.hand_wave",
-                "挥手。speed: 挥手Speed(500-1500，数值越小越快); direction: 手部选择(1=左手, "
+                "挥手。speed: 挥手速度(500-1500，数值越小越快); direction: 手部选择(1=左手, "
                 "-1=右手, 0=双手)",
                 PropertyList({Property("speed", kPropertyTypeInteger, 1000, 500, 1500),
                               Property("direction", kPropertyTypeInteger, 1, -1, 1)}),
@@ -356,7 +356,7 @@ public:
         }
 
         // 系统工具
-        mcp_server.AddTool("self.edarobot.stop", "ImmediatelyStop", PropertyList(),
+        mcp_server.AddTool("self.edarobot.stop", "立即停止", PropertyList(),
                            [this](const PropertyList& properties) -> ReturnValue {
                                if (action_task_handle_ != nullptr) {
                                    vTaskDelete(action_task_handle_);
@@ -371,8 +371,8 @@ public:
 
         mcp_server.AddTool(
             "self.edarobot.set_trim",
-            "校准单个舵机Position。Settings指定舵机的微调Parameters以调整EdaRobot的初始站立姿态，Settings将永久Save。"
-            "servo_type: 舵机Class型(left_leg/right_leg/left_foot/right_foot/left_hand/right_hand); "
+            "校准单个舵机位置。设置指定舵机的微调参数以调整EdaRobot的初始站立姿态，设置将永久保存。"
+            "servo_type: 舵机类型(left_leg/right_leg/left_foot/right_foot/left_hand/right_hand); "
             "trim_value: 微调值(-50到50度)",
             PropertyList({Property("servo_type", kPropertyTypeString, "left_leg"),
                           Property("trim_value", kPropertyTypeInteger, 0, -50, 50)}),
@@ -380,9 +380,9 @@ public:
                 std::string servo_type = properties["servo_type"].value<std::string>();
                 int trim_value = properties["trim_value"].value<int>();
 
-                ESP_LOGI(TAG, "Settings舵机微调: %s = %d度", servo_type.c_str(), trim_value);
+                ESP_LOGI(TAG, "设置舵机微调: %s = %d度", servo_type.c_str(), trim_value);
 
-                // Get当前所有微调值
+                // 获取当前所有微调值
                 Settings settings("edarobot_trims", true);
                 int left_leg = settings.GetInt("left_leg", 0);
                 int right_leg = settings.GetInt("right_leg", 0);
@@ -391,7 +391,7 @@ public:
                 int left_hand = settings.GetInt("left_hand", 0);
                 int right_hand = settings.GetInt("right_hand", 0);
 
-                // Update指定舵机的微调值
+                // 更新指定舵机的微调值
                 if (servo_type == "left_leg") {
                     left_leg = trim_value;
                     settings.SetInt("left_leg", left_leg);
@@ -406,18 +406,18 @@ public:
                     settings.SetInt("right_foot", right_foot);
                 } else if (servo_type == "left_hand") {
                     if (!has_hands_) {
-                        return "Error：机器人没有Configuration手部舵机";
+                        return "错误：机器人没有配置手部舵机";
                     }
                     left_hand = trim_value;
                     settings.SetInt("left_hand", left_hand);
                 } else if (servo_type == "right_hand") {
                     if (!has_hands_) {
-                        return "Error：机器人没有Configuration手部舵机";
+                        return "错误：机器人没有配置手部舵机";
                     }
                     right_hand = trim_value;
                     settings.SetInt("right_hand", right_hand);
                 } else {
-                    return "Error：无效的舵机Class型，Please使用: left_leg, right_leg, left_foot, "
+                    return "错误：无效的舵机类型，请使用: left_leg, right_leg, left_foot, "
                            "right_foot, left_hand, right_hand";
                 }
 
@@ -425,11 +425,11 @@ public:
 
                 QueueAction(ACTION_JUMP, 1, 500, 0, 0);
 
-                return "舵机 " + servo_type + " 微调Settings为 " + std::to_string(trim_value) +
-                       " 度，Already永久Save";
+                return "舵机 " + servo_type + " 微调设置为 " + std::to_string(trim_value) +
+                       " 度，已永久保存";
             });
 
-        mcp_server.AddTool("self.edarobot.get_trims", "Get当前的舵机微调Settings", PropertyList(),
+        mcp_server.AddTool("self.edarobot.get_trims", "获取当前的舵机微调设置", PropertyList(),
                            [this](const PropertyList& properties) -> ReturnValue {
                                Settings settings("edarobot_trims", false);
 
@@ -448,16 +448,16 @@ public:
                                    ",\"left_hand\":" + std::to_string(left_hand) +
                                    ",\"right_hand\":" + std::to_string(right_hand) + "}";
 
-                               ESP_LOGI(TAG, "Get微调Settings: %s", result.c_str());
+                               ESP_LOGI(TAG, "获取微调设置: %s", result.c_str());
                                return result;
                            });
 
-        mcp_server.AddTool("self.edarobot.get_status", "Get机器人Status，Return moving 或 idle",
+        mcp_server.AddTool("self.edarobot.get_status", "获取机器人状态，返回 moving 或 idle",
                            PropertyList(), [this](const PropertyList& properties) -> ReturnValue {
                                return is_action_in_progress_ ? "moving" : "idle";
                            });
 
-        mcp_server.AddTool("self.battery.get_level", "Get机器人BatteryBattery level和ChargeStatus", PropertyList(),
+        mcp_server.AddTool("self.battery.get_level", "获取机器人电池电量和充电状态", PropertyList(),
                            [](const PropertyList& properties) -> ReturnValue {
                                auto& board = Board::GetInstance();
                                int level = 0;
@@ -471,7 +471,7 @@ public:
                                return status;
                            });
 
-        ESP_LOGI(TAG, "MCP tools registration complete");
+        ESP_LOGI(TAG, "MCP工具注册完成");
     }
 
     ~EdaSuperBearController() {
@@ -488,6 +488,6 @@ static EdaSuperBearController* g_edarobot_controller = nullptr;
 void InitializeEdaSuperBearController() {
     if (g_edarobot_controller == nullptr) {
         g_edarobot_controller = new EdaSuperBearController();
-        ESP_LOGI(TAG, "EdaRobot控制器AlreadyInitialize并RegisterMCP工具");
+        ESP_LOGI(TAG, "EdaRobot控制器已初始化并注册MCP工具");
     }
 }

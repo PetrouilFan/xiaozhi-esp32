@@ -11,7 +11,7 @@ BoxAudioCodecLite::BoxAudioCodecLite(void* i2c_master_handle, int input_sample_r
     gpio_num_t mclk, gpio_num_t bclk, gpio_num_t ws, gpio_num_t dout, gpio_num_t din,
     gpio_num_t pa_pin, bool input_reference) {
     duplex_ = true; // 是否双工
-    input_reference_ = input_reference; // 是否使用参考输入，Implement回声消除
+    input_reference_ = input_reference; // 是否使用参考输入，实现回声消除
     if (input_reference) {
         ref_buffer_.resize(960 * 2);
     }
@@ -253,7 +253,7 @@ int BoxAudioCodecLite::Read(int16_t* dest, int samples) {
 int BoxAudioCodecLite::Write(const int16_t* data, int samples) {
     if (output_enabled_) {
         ESP_ERROR_CHECK_WITHOUT_ABORT(esp_codec_dev_write(output_dev_, (void*)data, samples * sizeof(int16_t)));
-        if (input_reference_) { // 板子Not supported硬件回采，采用缓存播放缓冲来Implement回声消除
+        if (input_reference_) { // 板子不支持硬件回采，采用缓存播放缓冲来实现回声消除
             if (write_pos_ - read_pos_ + samples > ref_buffer_.size()) { 
                 assert(ref_buffer_.size() >= samples);
                 // 写溢出，只保留最近的数据

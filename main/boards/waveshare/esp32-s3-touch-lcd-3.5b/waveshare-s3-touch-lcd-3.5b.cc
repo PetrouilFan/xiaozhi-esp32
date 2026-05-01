@@ -195,7 +195,7 @@ private:
         };
 
         esp_video_init_sccb_config_t sccb_config = {
-            .init_sccb = false,  // 不Initialize新的 SCCB，使用现有的 I2C 总线
+            .init_sccb = false,  // 不初始化新的 SCCB，使用现有的 I2C 总线
             .i2c_handle = i2c_bus_,  // 使用现有的 I2C 总线句柄
             .freq = 100000,  // 100kHz
         };
@@ -219,7 +219,7 @@ private:
     void InitializeLcdDisplay() {
         esp_lcd_panel_io_handle_t panel_io = nullptr;
         esp_lcd_panel_handle_t panel = nullptr;
-        // 液晶屏控制IOInitialize
+        // 液晶屏控制IO初始化
         ESP_LOGI(TAG, "Install panel IO");
         esp_lcd_panel_io_spi_config_t io_config = AXS15231B_PANEL_IO_QSPI_CONFIG(
             DISPLAY_CS_PIN,
@@ -227,7 +227,7 @@ private:
             NULL);
         ESP_ERROR_CHECK(esp_lcd_new_panel_io_spi(SPI2_HOST, &io_config, &panel_io));
 
-        // Initialize液晶屏驱动芯片
+        // 初始化液晶屏驱动芯片
         ESP_LOGI(TAG, "Install LCD driver");
         const axs15231b_vendor_config_t vendor_config = {
             .init_cmds = lcd_init_cmds, // Uncomment these line if use custom initialization commands

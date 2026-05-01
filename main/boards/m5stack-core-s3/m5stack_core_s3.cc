@@ -200,12 +200,12 @@ private:
         ft6336_->UpdateTouchPoint();
         auto& touch_point = ft6336_->GetTouchPoint();
         
-        // Detect触摸开始
+        // 检测触摸开始
         if (touch_point.num > 0 && !was_touched) {
             was_touched = true;
-            touch_start_time = esp_timer_get_time() / 1000; // 转换为毫Second
+            touch_start_time = esp_timer_get_time() / 1000; // 转换为毫秒
         } 
-        // Detect触摸释放
+        // 检测触摸释放
         else if (touch_point.num == 0 && was_touched) {
             was_touched = false;
             int64_t touch_duration = (esp_timer_get_time() / 1000) - touch_start_time;
@@ -226,7 +226,7 @@ private:
         ESP_LOGI(TAG, "Init FT6336");
         ft6336_ = new Ft6336(i2c_bus_, 0x38);
         
-        // Create定时器，20ms 间隔
+        // 创建定时器，20ms 间隔
         esp_timer_create_args_t timer_args = {
             .callback = [](void* arg) {
                 M5StackCoreS3Board* board = (M5StackCoreS3Board*)arg;

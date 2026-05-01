@@ -75,7 +75,7 @@ class CustomLcdDisplay : public SpiLcdDisplay {
             lv_obj_set_parent(battery_label_, top_bar_);
             lv_obj_set_style_margin_left(battery_label_, 0, 0);
 
-            // 针对圆形屏幕调整Position
+            // 针对圆形屏幕调整位置
             //      network  mute  battery     //
             //               status            //
             lv_obj_align(network_label_, LV_ALIGN_TOP_MID, -1.5 * icon_font->line_height, 0);
@@ -96,9 +96,9 @@ class CustomLcdDisplay : public SpiLcdDisplay {
             lv_obj_set_width(low_battery_label_, LV_HOR_RES * 0.75);
             lv_label_set_long_mode(low_battery_label_, LV_LABEL_LONG_SCROLL_CIRCULAR);
 
-            // 针对圆形屏幕调整底部对话框Position，避免被圆角遮挡
+            // 针对圆形屏幕调整底部对话框位置，避免被圆角遮挡
             lv_obj_set_style_pad_bottom(bottom_bar_, 30, 0);
-            lv_obj_set_width(chat_message_label_, LV_HOR_RES * 0.75); // 限制Width，避免文字贴边
+            lv_obj_set_width(chat_message_label_, LV_HOR_RES * 0.75); // 限制宽度，避免文字贴边
         }
 };
 
@@ -227,7 +227,7 @@ private:
         codec->SetOutputVolume(new_volume);
         ESP_LOGI(TAG, "Volume changed from %d to %d", current_volume, new_volume);
         
-        // 显示Notification前Check实际变化
+        // 显示通知前检查实际变化
         if (new_volume != codec->output_volume()) {
             ESP_LOGE(TAG, "Failed to set volume! Expected:%d Actual:%d", 
                    new_volume, codec->output_volume());
@@ -246,10 +246,10 @@ private:
     }
 
     void InitializeButton() {
-        // Settings静态实例指针
+        // 设置静态实例指针
         instance_ = this;
         
-        // watcher 是通过长按滚轮进行开机的, 需要Waiting滚轮释放, 否则用户开机松手时可能会误触成单击
+        // watcher 是通过长按滚轮进行开机的, 需要等待滚轮释放, 否则用户开机松手时可能会误触成单击
         ESP_LOGI(TAG, "waiting for knob button release");
         while(IoExpanderGetLevel(BSP_KNOB_BTN) == 0) {
             vTaskDelay(pdMS_TO_TICKS(50));
@@ -294,7 +294,7 @@ private:
         iot_button_register_cb(btns, BUTTON_LONG_PRESS_HOLD, nullptr, [](void* button_handle, void* usr_data) {
             auto self = static_cast<SensecapWatcher*>(usr_data);
             self->long_press_cnt_++; // 每隔20ms加一
-            // 长按10s 恢复出厂Settings: 2+0.02*400 = 10
+            // 长按10s 恢复出厂设置: 2+0.02*400 = 10
             if (self->long_press_cnt_ > 400) {
                 ESP_LOGI(TAG, "Factory reset");
                 nvs_flash_erase();
@@ -368,7 +368,7 @@ private:
         display_ = new CustomLcdDisplay(panel_io_, panel_,
             DISPLAY_WIDTH, DISPLAY_HEIGHT, DISPLAY_OFFSET_X, DISPLAY_OFFSET_Y, DISPLAY_MIRROR_X, DISPLAY_MIRROR_Y, DISPLAY_SWAP_XY);
         
-        // 使每次Refresh的起始列数索引是4的倍数且列数总数是4的倍数，以满足SPD2010的要求
+        // 使每次刷新的起始列数索引是4的倍数且列数总数是4的倍数，以满足SPD2010的要求
         lv_display_add_event_cb(lv_display_get_default(), [](lv_event_t *e) {
             lv_area_t *area = (lv_area_t *)lv_event_get_param(e);
             uint16_t x1 = area->x1;
@@ -595,7 +595,7 @@ public:
         InitializeButton();
         InitializeKnob();
         Initializespd2010Display();
-        GetBacklight()->RestoreBrightness();  // 对于不带摄像头的Version，InitializeCamera需要3s, 所以先恢复背光亮度
+        GetBacklight()->RestoreBrightness();  // 对于不带摄像头的版本，InitializeCamera需要3s, 所以先恢复背光亮度
         InitializeCamera();
     }
 
@@ -626,7 +626,7 @@ public:
     }
 
     // 根据 https://github.com/Seeed-Studio/OSHW-SenseCAP-Watcher/blob/main/Hardware/SenseCAP_Watcher_v1.0_SCH.pdf
-    // RGB LED型号为 ws2813 mini, Connect在GPIO 40，供电Voltage 3.3v, 没有Connect BIN 双Signal线
+    // RGB LED型号为 ws2813 mini, 连接在GPIO 40，供电电压 3.3v, 没有连接 BIN 双信号线
     // 可以直接兼容SingleLED采用的ws2812
     virtual Led* GetLed() override {
         static SingleLed led(BUILTIN_LED_GPIO);
@@ -664,5 +664,5 @@ public:
 
 DECLARE_BOARD(SensecapWatcher);
 
-// Define静态成员Variables
+// 定义静态成员变量
 SensecapWatcher* SensecapWatcher::instance_ = nullptr;

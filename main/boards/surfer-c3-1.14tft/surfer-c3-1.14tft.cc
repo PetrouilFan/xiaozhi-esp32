@@ -67,7 +67,7 @@ private:
     }
 
     void InitializePowerSaveTimer() {
-        //定时器，调整设备为modem-sleepMode和屏幕亮度
+        //定时器，调整设备为modem-sleep模式和屏幕亮度
         power_save_timer_ = new PowerSaveTimer(-1, 60, -1);
         power_save_timer_->OnEnterSleepMode([this]() {
             ESP_LOGI(TAG, "Enabling modem-sleep mode");
@@ -78,14 +78,14 @@ private:
         power_save_timer_->OnExitSleepMode([this]() {
             GetDisplay()->SetPowerSaveMode(false);
             GetBacklight()->RestoreBrightness();            
-            esp_wifi_set_ps(WIFI_PS_NONE);  // CloseWi-Fi省电，恢复Normal
-            // esp_lcd_panel_disp_on_off(panel_, true); // 重新Open显示
+            esp_wifi_set_ps(WIFI_PS_NONE);  // 关闭Wi-Fi省电，恢复正常
+            // esp_lcd_panel_disp_on_off(panel_, true); // 重新打开显示
         });
         power_save_timer_->OnShutdownRequest([this]() {
             ESP_LOGI(TAG, "Shutting down display");            
             GetBacklight()->SetBrightness(1);
-            // esp_lcd_panel_disp_on_off(panel_, false);   //Close显示
-            // power_save_timer_->SetEnabled(false);   // Disable定时器，防止重复
+            // esp_lcd_panel_disp_on_off(panel_, false);   //关闭显示
+            // power_save_timer_->SetEnabled(false);   // 禁用定时器，防止重复
             
         });
         power_save_timer_->SetEnabled(true);
@@ -115,7 +115,7 @@ private:
 
     void InitializeSt7789Display() {
         
-        // 液晶屏控制IOInitialize
+        // 液晶屏控制IO初始化
         ESP_LOGD(TAG, "Install panel IO");
         esp_lcd_panel_io_spi_config_t io_config = {};
         io_config.cs_gpio_num = DISPLAY_SPI_CS_PIN;
@@ -127,7 +127,7 @@ private:
         io_config.lcd_param_bits = 8;
         ESP_ERROR_CHECK(esp_lcd_new_panel_io_spi(SPI2_HOST, &io_config, &panel_io_));
 
-        // Initialize液晶屏驱动芯片ST7789
+        // 初始化液晶屏驱动芯片ST7789
         ESP_LOGD(TAG, "Install LCD driver");
         esp_lcd_panel_dev_config_t panel_config = {};
         panel_config.reset_gpio_num = GPIO_NUM_NC;

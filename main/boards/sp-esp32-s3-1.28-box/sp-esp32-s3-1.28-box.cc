@@ -124,7 +124,7 @@ public:
         SpiLcdDisplay::SetupUI();
 
         DisplayLockGuard lock(this);
-        // 由于屏幕是圆的，所以Status栏需要增加左右内边距
+        // 由于屏幕是圆的，所以状态栏需要增加左右内边距
         lv_obj_set_style_pad_left(status_bar_, LV_HOR_RES * 0.33, 0);
         lv_obj_set_style_pad_right(status_bar_, LV_HOR_RES * 0.33, 0);
     }
@@ -159,16 +159,16 @@ private:
         });
         power_save_timer_->OnShutdownRequest([this]() {
             ESP_LOGI(TAG, "Shutting down");
-            // CloseES8311音频编解码器
+            // 关闭ES8311音频编解码器
             auto codec = GetAudioCodec();
             if (codec) {
                 codec->EnableInput(false);
                 codec->EnableOutput(false);
             }
             rtc_gpio_set_level(GPIO_NUM_3, 0);
-            // Enable保持Functions，确保Sleep期间电平不变
+            // 启用保持功能，确保睡眠期间电平不变
             rtc_gpio_hold_en(GPIO_NUM_3);
-            esp_lcd_panel_disp_on_off(panel_, false); //Close显示
+            esp_lcd_panel_disp_on_off(panel_, false); //关闭显示
             esp_deep_sleep_start();
         });
         power_save_timer_->SetEnabled(true);
@@ -234,12 +234,12 @@ private:
         board->cst816d_->UpdateTouchPoint();
         auto touch_point = board->cst816d_->GetTouchPoint();
 
-        // Detect触摸开始
+        // 检测触摸开始
         if (touch_point.num > 0 && !was_touched) {
             was_touched = true;
-            touch_start_time = esp_timer_get_time() / 1000; // 转换为毫Second
+            touch_start_time = esp_timer_get_time() / 1000; // 转换为毫秒
         }
-        // Detect触摸释放
+        // 检测触摸释放
         else if (touch_point.num == 0 && was_touched) {
             was_touched = false;
             int64_t touch_duration = (esp_timer_get_time() / 1000) - touch_start_time;
@@ -260,7 +260,7 @@ private:
     void InitializeCst816DTouchPad() {
         ESP_LOGI(TAG, "Init Cst816D");
 
-        // RST/INT 管脚Initialize
+        // RST/INT 管脚初始化
         gpio_config_t io_conf = {};
         io_conf.intr_type = GPIO_INTR_DISABLE;
         io_conf.mode = GPIO_MODE_OUTPUT;
@@ -277,7 +277,7 @@ private:
         int_conf.pull_up_en = GPIO_PULLUP_ENABLE;
         gpio_config(&int_conf);
 
-        // 触摸芯片Reset序列
+        // 触摸芯片复位序列
         gpio_set_level(TP_PIN_NUM_TP_RST, 0);
         vTaskDelay(pdMS_TO_TICKS(5));
         gpio_set_level(TP_PIN_NUM_TP_RST, 1);
@@ -300,7 +300,7 @@ private:
 
         cst816d_ = new Cst816d(i2c_bus_, 0x15);
 
-        // Create定时器，10ms 间隔
+        // 创建定时器，10ms 间隔
         esp_timer_create_args_t timer_args = {
             .callback = touchpad_timer_callback,
             .arg = this,
@@ -314,7 +314,7 @@ private:
         }
     }
 
-    // SPIInitialize
+    // SPI初始化
     void InitializeSpi() {
         ESP_LOGI(TAG, "Initialize SPI bus");
         spi_bus_config_t buscfg = GC9A01_PANEL_BUS_SPI_CONFIG(DISPLAY_SPI_SCLK_PIN, DISPLAY_SPI_MOSI_PIN,
@@ -322,7 +322,7 @@ private:
         ESP_ERROR_CHECK(spi_bus_initialize(SPI3_HOST, &buscfg, SPI_DMA_CH_AUTO));
     }
 
-    // GC9A01Initialize
+    // GC9A01初始化
     void InitializeGc9a01Display() {
         ESP_LOGI(TAG, "Init GC9A01 display");
         ESP_LOGI(TAG, "Install panel IO");
@@ -383,11 +383,11 @@ private:
 
 public:
     Spotpear_ESP32_S3_1_28_BOX() : boot_button_(BOOT_BUTTON_GPIO) {
-        // 先Initialize触摸的I2C并探测/Initialize触摸（若无触摸则跳过）
+        // 先初始化触摸的I2C并探测/初始化触摸（若无触摸则跳过）
         InitializeCodecI2c_Touch();
         InitializeCst816DTouchPad();
 
-        // Initialize音频I2C
+        // 初始化音频I2C
         InitializeCodecI2c();
 
         // 显示相关先建立起来
@@ -398,7 +398,7 @@ public:
             GetBacklight()->RestoreBrightness();
         }
 
-        // 显示和背光可用后再Initialize省电逻辑，避免空指针
+        // 显示和背光可用后再初始化省电逻辑，避免空指针
         InitializePowerSaveTimer();
         InitializePowerManager();
     }

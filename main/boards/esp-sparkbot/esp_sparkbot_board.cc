@@ -91,7 +91,7 @@ private:
         esp_lcd_panel_io_handle_t panel_io = nullptr;
         esp_lcd_panel_handle_t panel = nullptr;
 
-        // 液晶屏控制IOInitialize
+        // 液晶屏控制IO初始化
         ESP_LOGD(TAG, "Install panel IO");
         esp_lcd_panel_io_spi_config_t io_config = {};
         io_config.cs_gpio_num = DISPLAY_CS_GPIO;
@@ -103,7 +103,7 @@ private:
         io_config.lcd_param_bits = 8;
         ESP_ERROR_CHECK(esp_lcd_new_panel_io_spi(SPI3_HOST, &io_config, &panel_io));
 
-        // Initialize液晶屏驱动芯片
+        // 初始化液晶屏驱动芯片
         ESP_LOGD(TAG, "Install LCD driver");
 
         esp_lcd_panel_dev_config_t panel_config = {};
@@ -143,7 +143,7 @@ private:
 
         // 复用 I2C 总线
         esp_video_init_sccb_config_t sccb_config = {
-            .init_sccb = false,  // 不Initialize新的 SCCB，使用现有的 I2C 总线
+            .init_sccb = false,  // 不初始化新的 SCCB，使用现有的 I2C 总线
             .i2c_handle = i2c_bus_,  // 使用现有的 I2C 总线句柄
             .freq = 100000,  // 100kHz
         };
@@ -165,7 +165,7 @@ private:
         camera_ = new EspVideo(video_config);
 
         Settings settings("sparkbot", false);
-        // 考虑到部分复刻使用了不可动摄像头的设计，默认Enable翻转
+        // 考虑到部分复刻使用了不可动摄像头的设计，默认启用翻转
         bool camera_flipped = static_cast<bool>(settings.GetInt("camera-flipped", 1));
         camera_->SetHMirror(camera_flipped);
         camera_->SetVFlip(camera_flipped);
@@ -201,8 +201,8 @@ private:
 
     void InitializeTools() {
         auto& mcp_server = McpServer::GetInstance();
-        // Define设备的属性
-        mcp_server.AddTool("self.chassis.get_light_mode", "Get灯光效果编号", PropertyList(), [this](const PropertyList& properties) -> ReturnValue {
+        // 定义设备的属性
+        mcp_server.AddTool("self.chassis.get_light_mode", "获取灯光效果编号", PropertyList(), [this](const PropertyList& properties) -> ReturnValue {
             if (light_mode_ < 2) {
                 return 1;
             } else {
@@ -236,7 +236,7 @@ private:
             return true;
         });
 
-        mcp_server.AddTool("self.chassis.switch_light_mode", "Open灯光效果", PropertyList({
+        mcp_server.AddTool("self.chassis.switch_light_mode", "打开灯光效果", PropertyList({
             Property("light_mode", kPropertyTypeInteger, 1, 6)
         }), [this](const PropertyList& properties) -> ReturnValue {
             char command_str[5] = {'w', 0, 0};
@@ -252,9 +252,9 @@ private:
             throw std::runtime_error("Invalid light mode");
         });
 
-        mcp_server.AddTool("self.camera.set_camera_flipped", "翻转摄像头图像Direction", PropertyList(), [this](const PropertyList& properties) -> ReturnValue {
+        mcp_server.AddTool("self.camera.set_camera_flipped", "翻转摄像头图像方向", PropertyList(), [this](const PropertyList& properties) -> ReturnValue {
             Settings settings("sparkbot", true);
-            // 考虑到部分复刻使用了不可动摄像头的设计，默认Enable翻转
+            // 考虑到部分复刻使用了不可动摄像头的设计，默认启用翻转
             bool flipped = !static_cast<bool>(settings.GetInt("camera-flipped", 1));
             
             camera_->SetHMirror(flipped);

@@ -98,7 +98,7 @@ private:
         esp_lcd_panel_io_handle_t panel_io = nullptr;
         esp_lcd_panel_handle_t panel = nullptr;
         ESP_LOGD(TAG, "Install panel IO");
-        // 液晶屏控制IOInitialize
+        // 液晶屏控制IO初始化
         esp_lcd_panel_io_spi_config_t io_config = {};
         io_config.cs_gpio_num = LCD_CS_PIN;
         io_config.dc_gpio_num = LCD_DC_PIN;
@@ -109,7 +109,7 @@ private:
         io_config.lcd_param_bits = 8;
         esp_lcd_new_panel_io_spi(SPI2_HOST, &io_config, &panel_io);
 
-        // Initialize液晶屏驱动芯片ST7789
+        // 初始化液晶屏驱动芯片ST7789
         ESP_LOGD(TAG, "Install LCD driver");
         esp_lcd_panel_dev_config_t panel_config = {};
         panel_config.reset_gpio_num = GPIO_NUM_NC;
@@ -130,13 +130,13 @@ private:
                                     DISPLAY_WIDTH, DISPLAY_HEIGHT, DISPLAY_OFFSET_X, DISPLAY_OFFSET_Y, DISPLAY_MIRROR_X, DISPLAY_MIRROR_Y, DISPLAY_SWAP_XY);
     }
 
-    // Initialize摄像头：ov2640；
-    // 根据正点原子官方ExampleParameters
+    // 初始化摄像头：ov2640；
+    // 根据正点原子官方示例参数
     void InitializeCamera() {
         xl9555_->SetOutputState(OV_PWDN_IO, 0); // PWDN=低 (上电)
-        xl9555_->SetOutputState(OV_RESET_IO, 0); // 确保Reset
-        vTaskDelay(pdMS_TO_TICKS(50));           // 延长Reset保持Time
-        xl9555_->SetOutputState(OV_RESET_IO, 1); // 释放Reset
+        xl9555_->SetOutputState(OV_RESET_IO, 0); // 确保复位
+        vTaskDelay(pdMS_TO_TICKS(50));           // 延长复位保持时间
+        xl9555_->SetOutputState(OV_RESET_IO, 1); // 释放复位
         vTaskDelay(pdMS_TO_TICKS(50));           // 延长 50ms
 
         static esp_cam_ctlr_dvp_pin_config_t dvp_pin_config = {

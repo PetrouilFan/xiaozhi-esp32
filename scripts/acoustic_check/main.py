@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 音频实时监听与绘图系统主程序
-基于Qt GUI + Matplotlib + UDPReceive + AFSK解码字符串
+基于Qt GUI + Matplotlib + UDP接收 + AFSK解码字符串
 """
 
 import sys
