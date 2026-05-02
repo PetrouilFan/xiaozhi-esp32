@@ -30,7 +30,7 @@ public:
     virtual void SetPowerSaveMode(bool on) override;
     virtual void UpdateStatusBar(bool update_all = false) override;
 
-    void SetFaceState(FacePhase phase);
+    void SetFaceState(int phase);
     void PlayClip(const Clip* clip);
 
     struct EyeDrawData {

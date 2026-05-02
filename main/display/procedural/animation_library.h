@@ -21,6 +21,7 @@ public:
     static const Clip* DoubleBlink();
     static const Clip* SleepIdle();
     static const Clip* TestHorizontal();
+    static const Clip* TinyFocusNarrow();
 };
 
 } // namespace procedural

@@ -157,7 +157,9 @@ bool Scheduler::TryPlayAutonomous(FacePhase phase, uint32_t now_ms) {
         cum += b.weight;
         if (cum > selection) {
             SCHEDULER_DEBUG("playing: %s, tier: %d", b.name, (int)selected_tier);
-            if (b.clip) Play(b.clip);
+            // Use name-based lookup via AnimationLibrary::Get
+            const Clip* c = AnimationLibrary::Get(b.name);
+            if (c) Play(c);
             last_behavior_ms_[i] = now_ms;
             return true;
         }

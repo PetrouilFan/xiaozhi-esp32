@@ -44,6 +44,13 @@ public:
         setup_ui_called_ = true;
     }
 
+    // Canonical face state mapping - each phase may have different ambient animation
+    // Uses procedural FacePhase internally by procedural displays
+    virtual void SetFaceState(int phase) {
+        (void)phase;
+        // Default no-op for non-procedural displays
+    }
+
     inline int width() const { return width_; }
     inline int height() const { return height_; }
     inline bool IsSetupUICalled() const { return setup_ui_called_; }

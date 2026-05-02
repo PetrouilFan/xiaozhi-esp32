@@ -212,15 +212,21 @@ void ProceduralDisplay::UpdateStatusBar(bool update_all) {
     (void)update_all;
 }
 
-void ProceduralDisplay::SetFaceState(FacePhase phase) {
+void ProceduralDisplay::SetFaceState(int phase_int) {
+    if (phase_int < 0 || phase_int > 11) return;
+    FacePhase phase = static_cast<FacePhase>(phase_int);
     DisplayLockGuard lock(this);
     current_phase_ = phase;
 
     FaceState new_base = scheduler_.base();
 
+    // Stop all looped ambient behaviors first
     scheduler_.Stop("breathing");
     scheduler_.Stop("micro_tilt");
     scheduler_.Stop("sleepidle");
+    scheduler_.Stop("microtiltswap");
+    scheduler_.Stop("tinyfocusnarrow");
+    scheduler_.Stop("orbitsearch");
 
     switch (phase) {
     case FacePhase::BOOTING:
@@ -229,19 +235,30 @@ void ProceduralDisplay::SetFaceState(FacePhase phase) {
     case FacePhase::IDLE:
         new_base.left = EyeShape::PresetNeutral();
         new_base.right = EyeShape::PresetNeutral();
+        // Always restart ambient loops for IDLE
+        PlayClip(AnimationLibrary::Breathing());
+        PlayClip(AnimationLibrary::MicroTilt());
         break;
     case FacePhase::LISTENING:
         new_base.left = EyeShape::PresetFocused();
         new_base.right = EyeShape::PresetFocused();
+        // Listening-specific ambient: slower breathing, focus narrowing
+        PlayClip(AnimationLibrary::Breathing());
+        PlayClip(AnimationLibrary::TinyFocusNarrow());
         break;
     case FacePhase::THINKING:
         new_base.left = EyeShape::PresetNeutral();
         new_base.right = EyeShape::PresetNeutral();
         PlayClip(AnimationLibrary::Thinking());
+        // Thinking has subtle micro-tilt
+        PlayClip(AnimationLibrary::MicroTilt());
         break;
     case FacePhase::SPEAKING:
         new_base.left = EyeShape::PresetNeutral();
         new_base.right = EyeShape::PresetNeutral();
+        // Speaking: subtle micro-movements to show "alive"
+        PlayClip(AnimationLibrary::MicroTilt());
+        PlayClip(AnimationLibrary::Breathing());
         break;
     case FacePhase::SLEEPING:
         new_base.left = EyeShape::PresetSleepy();
@@ -257,6 +274,8 @@ void ProceduralDisplay::SetFaceState(FacePhase phase) {
         new_base.left = EyeShape::PresetHappy();
         new_base.right = EyeShape::PresetHappy();
         PlayClip(AnimationLibrary::Happy());
+        // Happy still has subtle ambient motion
+        PlayClip(AnimationLibrary::Breathing());
         break;
     case FacePhase::SAD:
         new_base.left = EyeShape::PresetSad();
@@ -271,14 +290,17 @@ void ProceduralDisplay::SetFaceState(FacePhase phase) {
     case FacePhase::CONFUSED:
         new_base.left = EyeShape::PresetNeutral();
         new_base.right = EyeShape::PresetNeutral();
+        PlayClip(AnimationLibrary::MicroTilt());
         break;
     case FacePhase::ERROR_STATE:
         new_base.left = EyeShape::PresetAngry();
         new_base.right = EyeShape::PresetAngry();
+        PlayClip(AnimationLibrary::Angry());
         break;
     default:
         new_base.left = EyeShape::PresetNeutral();
         new_base.right = EyeShape::PresetNeutral();
+        PlayClip(AnimationLibrary::Breathing());
         break;
     }
 
@@ -312,7 +334,7 @@ void ProceduralDisplay::UpdateFromScheduler() {
     uint32_t now_ms = lv_tick_get();
 
     if (current_phase_ == FacePhase::BOOTING && !scheduler_.IsPlaying("boot_open")) {
-        SetFaceState(FacePhase::IDLE);
+        SetFaceState(static_cast<int>(FacePhase::IDLE));
     }
 
     float now_sec = now_ms / 1000.0f;

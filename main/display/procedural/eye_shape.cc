@@ -44,6 +44,10 @@ EyeShape::Polygon EyeShape::GenerateContour(const EyeParameters& eye, int16_t cx
         if (poly.count > 0 && p.x == poly.points[poly.count-1].x && p.y == poly.points[poly.count-1].y) continue;
         if (poly.count < MAX_POINTS) poly.points[poly.count++] = p;
     }
+
+    // Ensure we have at least 3 valid points for rendering
+    if (poly.count < 3) poly.count = 0;
+
     return poly;
 }
 

@@ -595,5 +595,6 @@ const Clip* AnimationLibrary::SlowBlink()  { InitTimelines(); return &clip_slowb
 const Clip* AnimationLibrary::DoubleBlink() { InitTimelines(); return &clip_doubleblink; }
 const Clip* AnimationLibrary::SleepIdle()  { InitTimelines(); return &clip_sleepidle; }
 const Clip* AnimationLibrary::TestHorizontal() { InitTimelines(); return &clip_test_horizontal; }
+const Clip* AnimationLibrary::TinyFocusNarrow() { InitTimelines(); return &clip_tinyfocusnarrow; }
 
 } // namespace procedural
