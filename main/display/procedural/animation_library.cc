@@ -63,97 +63,97 @@ static Clip clip_sleeppeek    = {"sleeppeek", 1.0f, 3, false, true, nullptr, 0, 
 
 // --- Angry clip keyframes (16 tracks) ---
 static KeyFrame angry_left_inner_corner_raise[] = {
-    {0.00f, 0.0f, EasingType::LINEAR}, {0.25f, -0.35f, EasingType::EASE_OUT_CUBIC},
-    {0.75f, -0.33f}, {1.00f, 0.0f, EasingType::EASE_IN_CUBIC}
+    {0.00f, 0.0f, EasingType::LINEAR}, {0.25f, -0.18f, EasingType::EASE_OUT_CUBIC},
+    {0.75f, -0.16f}, {1.00f, 0.0f, EasingType::EASE_IN_CUBIC}
 };
 static KeyFrame angry_left_outer_corner_raise[] = {
-    {0.00f, 0.0f, EasingType::LINEAR}, {0.25f, 0.15f, EasingType::EASE_OUT_CUBIC},
-    {0.75f, 0.13f}, {1.00f, 0.0f, EasingType::EASE_IN_CUBIC}
+    {0.00f, 0.0f, EasingType::LINEAR}, {0.25f, 0.08f, EasingType::EASE_OUT_CUBIC},
+    {0.75f, 0.06f}, {1.00f, 0.0f, EasingType::EASE_IN_CUBIC}
 };
 static KeyFrame angry_left_top_cut[] = {
-    {0.00f, 0.10f, EasingType::LINEAR}, {0.25f, 0.30f, EasingType::EASE_OUT_CUBIC},
-    {0.75f, 0.28f}, {1.00f, 0.10f, EasingType::EASE_IN_CUBIC}
+    {0.00f, 0.10f, EasingType::LINEAR}, {0.25f, 0.18f, EasingType::EASE_OUT_CUBIC},
+    {0.75f, 0.16f}, {1.00f, 0.10f, EasingType::EASE_IN_CUBIC}
 };
 static KeyFrame angry_left_bottom_cut[] = {
-    {0.00f, 0.05f, EasingType::LINEAR}, {0.25f, 0.15f, EasingType::EASE_OUT_CUBIC},
-    {0.75f, 0.13f}, {1.00f, 0.05f, EasingType::EASE_IN_CUBIC}
+    {0.00f, 0.05f, EasingType::LINEAR}, {0.25f, 0.10f, EasingType::EASE_OUT_CUBIC},
+    {0.75f, 0.08f}, {1.00f, 0.05f, EasingType::EASE_IN_CUBIC}
 };
 static KeyFrame angry_left_rotation_deg[] = {
-    {0.00f, 0.0f, EasingType::LINEAR}, {0.25f, -8.0f, EasingType::EASE_OUT_CUBIC},
-    {0.75f, -7.0f}, {1.00f, 0.0f, EasingType::EASE_IN_CUBIC}
+    {0.00f, 0.0f, EasingType::LINEAR}, {0.25f, -5.0f, EasingType::EASE_OUT_CUBIC},
+    {0.75f, -4.0f}, {1.00f, 0.0f, EasingType::EASE_IN_CUBIC}
 };
 static KeyFrame angry_left_center_x[] = {
-    {0.00f, 0.0f, EasingType::LINEAR}, {0.25f, -0.6f, EasingType::EASE_OUT_CUBIC},
-    {0.75f, -0.53f}, {1.00f, 0.0f, EasingType::EASE_IN_CUBIC}
+    {0.00f, 0.0f, EasingType::LINEAR}, {0.25f, -0.35f, EasingType::EASE_OUT_CUBIC},
+    {0.75f, -0.30f}, {1.00f, 0.0f, EasingType::EASE_IN_CUBIC}
 };
 static KeyFrame angry_left_scale_y[] = {
-    {0.00f, 0.85f, EasingType::LINEAR}, {0.25f, 0.65f, EasingType::EASE_OUT_CUBIC},
-    {0.75f, 0.67f}, {1.00f, 0.85f, EasingType::EASE_IN_CUBIC}
+    {0.00f, 0.85f, EasingType::LINEAR}, {0.25f, 0.72f, EasingType::EASE_OUT_CUBIC},
+    {0.75f, 0.74f}, {1.00f, 0.85f, EasingType::EASE_IN_CUBIC}
 };
 static KeyFrame angry_left_scale_x[] = {
-    {0.00f, 0.95f, EasingType::LINEAR}, {0.25f, 1.12f, EasingType::EASE_OUT_CUBIC},
-    {0.75f, 1.10f}, {1.00f, 0.95f, EasingType::EASE_IN_CUBIC}
+    {0.00f, 0.95f, EasingType::LINEAR}, {0.25f, 1.08f, EasingType::EASE_OUT_CUBIC},
+    {0.75f, 1.06f}, {1.00f, 0.95f, EasingType::EASE_IN_CUBIC}
 };
 
 static KeyFrame angry_right_inner_corner_raise[] = {
-    {0.00f, 0.0f, EasingType::LINEAR}, {0.32f, -0.37f, EasingType::EASE_OUT_CUBIC},
-    {0.82f, -0.35f}, {1.00f, 0.0f, EasingType::EASE_IN_CUBIC}
+    {0.00f, 0.0f, EasingType::LINEAR}, {0.32f, -0.20f, EasingType::EASE_OUT_CUBIC},
+    {0.82f, -0.18f}, {1.00f, 0.0f, EasingType::EASE_IN_CUBIC}
 };
 static KeyFrame angry_right_outer_corner_raise[] = {
-    {0.00f, 0.0f, EasingType::LINEAR}, {0.32f, 0.17f, EasingType::EASE_OUT_CUBIC},
-    {0.82f, 0.15f}, {1.00f, 0.0f, EasingType::EASE_IN_CUBIC}
+    {0.00f, 0.0f, EasingType::LINEAR}, {0.32f, 0.10f, EasingType::EASE_OUT_CUBIC},
+    {0.82f, 0.08f}, {1.00f, 0.0f, EasingType::EASE_IN_CUBIC}
 };
 static KeyFrame angry_right_top_cut[] = {
-    {0.00f, 0.10f, EasingType::LINEAR}, {0.32f, 0.28f, EasingType::EASE_OUT_CUBIC},
-    {0.82f, 0.26f}, {1.00f, 0.10f, EasingType::EASE_IN_CUBIC}
+    {0.00f, 0.10f, EasingType::LINEAR}, {0.32f, 0.16f, EasingType::EASE_OUT_CUBIC},
+    {0.82f, 0.14f}, {1.00f, 0.10f, EasingType::EASE_IN_CUBIC}
 };
 static KeyFrame angry_right_bottom_cut[] = {
-    {0.00f, 0.05f, EasingType::LINEAR}, {0.32f, 0.13f, EasingType::EASE_OUT_CUBIC},
-    {0.82f, 0.11f}, {1.00f, 0.05f, EasingType::EASE_IN_CUBIC}
+    {0.00f, 0.05f, EasingType::LINEAR}, {0.32f, 0.08f, EasingType::EASE_OUT_CUBIC},
+    {0.82f, 0.06f}, {1.00f, 0.05f, EasingType::EASE_IN_CUBIC}
 };
 static KeyFrame angry_right_rotation_deg[] = {
-    {0.00f, 0.0f, EasingType::LINEAR}, {0.32f, 8.0f, EasingType::EASE_OUT_CUBIC},
-    {0.82f, 7.0f}, {1.00f, 0.0f, EasingType::EASE_IN_CUBIC}
+    {0.00f, 0.0f, EasingType::LINEAR}, {0.32f, 5.0f, EasingType::EASE_OUT_CUBIC},
+    {0.82f, 4.0f}, {1.00f, 0.0f, EasingType::EASE_IN_CUBIC}
 };
 static KeyFrame angry_right_center_x[] = {
-    {0.00f, 0.0f, EasingType::LINEAR}, {0.32f, 0.6f, EasingType::EASE_OUT_CUBIC},
-    {0.82f, 0.53f}, {1.00f, 0.0f, EasingType::EASE_IN_CUBIC}
+    {0.00f, 0.0f, EasingType::LINEAR}, {0.32f, 0.35f, EasingType::EASE_OUT_CUBIC},
+    {0.82f, 0.30f}, {1.00f, 0.0f, EasingType::EASE_IN_CUBIC}
 };
 static KeyFrame angry_right_scale_y[] = {
-    {0.00f, 0.85f, EasingType::LINEAR}, {0.32f, 0.67f, EasingType::EASE_OUT_CUBIC},
-    {0.82f, 0.69f}, {1.00f, 0.85f, EasingType::EASE_IN_CUBIC}
+    {0.00f, 0.85f, EasingType::LINEAR}, {0.32f, 0.74f, EasingType::EASE_OUT_CUBIC},
+    {0.82f, 0.76f}, {1.00f, 0.85f, EasingType::EASE_IN_CUBIC}
 };
 static KeyFrame angry_right_scale_x[] = {
-    {0.00f, 0.95f, EasingType::LINEAR}, {0.32f, 1.14f, EasingType::EASE_OUT_CUBIC},
-    {0.82f, 1.12f}, {1.00f, 0.95f, EasingType::EASE_IN_CUBIC}
+    {0.00f, 0.95f, EasingType::LINEAR}, {0.32f, 1.10f, EasingType::EASE_OUT_CUBIC},
+    {0.82f, 1.08f}, {1.00f, 0.95f, EasingType::EASE_IN_CUBIC}
 };
 
 // --- Happy hop keyframes (7 tracks) ---
 static KeyFrame happy_face_offset_y[] = {
-    {0.00f, 0.0f}, {0.10f, 0.10f, EasingType::EASE_IN_CUBIC},
-    {0.20f, -0.50f, EasingType::EASE_OUT_CUBIC}, {0.45f, -0.50f},
-    {0.55f, 0.18f, EasingType::EASE_IN_CUBIC}, {0.60f, 0.18f},
-    {0.70f, -0.05f, EasingType::EASE_OUT_BACK}, {0.90f, 0.0f}
+    {0.00f, 0.0f}, {0.10f, 0.05f, EasingType::EASE_IN_CUBIC},
+    {0.20f, -0.25f, EasingType::EASE_OUT_CUBIC}, {0.45f, -0.25f},
+    {0.55f, 0.09f, EasingType::EASE_IN_CUBIC}, {0.60f, 0.09f},
+    {0.70f, -0.025f, EasingType::EASE_OUT_BACK}, {0.90f, 0.0f}
 };
 static KeyFrame happy_face_scale[] = {
-    {0.00f, 1.0f}, {0.10f, 0.88f}, {0.20f, 1.10f},
-    {0.45f, 1.10f}, {0.55f, 0.85f}, {0.70f, 1.04f},
+    {0.00f, 1.0f}, {0.10f, 0.94f}, {0.20f, 1.05f},
+    {0.45f, 1.05f}, {0.55f, 0.92f}, {0.70f, 1.02f},
     {0.90f, 1.0f}
 };
 static KeyFrame happy_eye_gap[] = {
-    {0.00f, 1.0f}, {0.55f, 0.80f}, {0.70f, 1.15f, EasingType::EASE_OUT_BACK}, {0.90f, 1.0f}
+    {0.00f, 1.0f}, {0.55f, 0.90f}, {0.70f, 1.07f, EasingType::EASE_OUT_BACK}, {0.90f, 1.0f}
 };
 static KeyFrame happy_left_outer_corner_raise[] = {
-    {0.00f, 0.0f}, {0.25f, 0.35f, EasingType::EASE_OUT_CUBIC}, {0.55f, 0.30f}, {0.90f, 0.0f}
+    {0.00f, 0.0f}, {0.25f, 0.18f, EasingType::EASE_OUT_CUBIC}, {0.55f, 0.15f}, {0.90f, 0.0f}
 };
 static KeyFrame happy_right_outer_corner_raise[] = {
-    {0.00f, 0.0f}, {0.27f, 0.35f, EasingType::EASE_OUT_CUBIC}, {0.57f, 0.30f}, {0.90f, 0.0f}
+    {0.00f, 0.0f}, {0.27f, 0.18f, EasingType::EASE_OUT_CUBIC}, {0.57f, 0.15f}, {0.90f, 0.0f}
 };
 static KeyFrame happy_left_top_cut[] = {
-    {0.00f, 0.10f}, {0.25f, 0.40f, EasingType::EASE_OUT_CUBIC}, {0.55f, 0.35f}, {0.90f, 0.10f}
+    {0.00f, 0.10f}, {0.25f, 0.20f, EasingType::EASE_OUT_CUBIC}, {0.55f, 0.18f}, {0.90f, 0.10f}
 };
 static KeyFrame happy_right_top_cut[] = {
-    {0.00f, 0.10f}, {0.27f, 0.40f, EasingType::EASE_OUT_CUBIC}, {0.57f, 0.35f}, {0.90f, 0.10f}
+    {0.00f, 0.10f}, {0.27f, 0.20f, EasingType::EASE_OUT_CUBIC}, {0.57f, 0.18f}, {0.90f, 0.10f}
 };
 
 // --- Double take soft keyframes (5 tracks) ---

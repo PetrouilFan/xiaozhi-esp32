@@ -341,9 +341,9 @@ void ProceduralDisplay::UpdateFromScheduler() {
     current_face_ = scheduler_.Update(now_sec, current_phase_);
 
     static uint32_t last_autonomous_ms = 0;
-    if (now_ms - last_autonomous_ms > 1500) {
+    if (now_ms - last_autonomous_ms > 1500 + (esp_random() % 2500)) {
         if (scheduler_.TryPlayAutonomous(current_phase_, now_ms)) {
-            PROCEDURAL_DEBUG("autonomous triggered");
+            PROCEDURAL_DEBUG("autonomous behavior");
             last_autonomous_ms = now_ms;
         }
     }

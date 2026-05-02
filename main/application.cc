@@ -926,6 +926,11 @@ void Application::HandleStateChangedEvent() {
             // Do nothing
             break;
     }
+
+    // Error state handling - trigger angry expression
+    if (new_state == kDeviceStateFatalError || new_state == kDeviceStateUnknown) {
+        display->SetFaceState(10); // ANGRY/ERROR_STATE
+    }
 }
 
 void Application::Schedule(std::function<void()>&& callback) {
