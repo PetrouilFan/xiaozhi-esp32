@@ -63,15 +63,13 @@ void ProceduralDisplay::SetupUI() {
     lv_obj_set_style_border_width(bg_rect_, 0, 0);
     lv_obj_set_style_pad_all(bg_rect_, 0, 0);
 
-    left_eye_ = lv_line_create(screen);
-    lv_obj_set_style_line_width(left_eye_, 3, 0);
-    lv_obj_set_style_line_color(left_eye_, lv_color_make(0, 220, 220), 0);
-    lv_obj_set_style_line_rounded(left_eye_, true, 0);
+    left_eye_ = CreateEyeObj(screen);
+    right_eye_ = CreateEyeObj(screen);
+    lv_obj_set_user_data(left_eye_, this);
+    lv_obj_set_user_data(right_eye_, this);
 
-    right_eye_ = lv_line_create(screen);
-    lv_obj_set_style_line_width(right_eye_, 3, 0);
-    lv_obj_set_style_line_color(right_eye_, lv_color_make(0, 220, 220), 0);
-    lv_obj_set_style_line_rounded(right_eye_, true, 0);
+    left_draw_.color = lv_color_make(0, 220, 220);
+    right_draw_.color = lv_color_make(0, 220, 220);
 
     status_label_ = lv_label_create(screen);
     lv_obj_set_width(status_label_, width_);
@@ -404,20 +402,13 @@ void ProceduralDisplay::UpdateFaceGeometry() {
     EyeShape::Polygon lpoly = EyeShape::GenerateContour(
         left_eye, static_cast<int>(left_cx_final), static_cast<int>(left_cy_final), kEyeWidth, kEyeHeight);
 
-    uint8_t lcount = 0;
+    left_draw_.count = 0;
     for (uint8_t i = 0; i < lpoly.count && i < 16; ++i) {
-        left_points_[i].x = Clamp(lpoly.points[i].x, 0, width_ - 1);
-        left_points_[i].y = Clamp(lpoly.points[i].y, 0, height_ - 1);
-        lcount++;
+        left_draw_.points[i].x = Clamp(lpoly.points[i].x, 0, width_ - 1);
+        left_draw_.points[i].y = Clamp(lpoly.points[i].y, 0, height_ - 1);
+        left_draw_.count++;
     }
-    if (lcount > 0) {
-        left_points_[lcount] = left_points_[0];
-        lcount++;
-    }
-    lv_line_set_points(left_eye_, left_points_, lcount);
-
-    uint8_t lbri = static_cast<uint8_t>(s.left.brightness * 255);
-    lv_obj_set_style_line_opa(left_eye_, lbri, 0);
+    left_draw_.opa = static_cast<lv_opa_t>(s.left.brightness * 255);
 
     EyeParameters right_eye = s.right;
     right_eye.rotation_deg += rig.face_tilt;
@@ -425,31 +416,81 @@ void ProceduralDisplay::UpdateFaceGeometry() {
     EyeShape::Polygon rpoly = EyeShape::GenerateContour(
         right_eye, static_cast<int>(right_cx_final), static_cast<int>(right_cy_final), kEyeWidth, kEyeHeight);
 
-    uint8_t rcount = 0;
+    right_draw_.count = 0;
     for (uint8_t i = 0; i < rpoly.count && i < 16; ++i) {
-        right_points_[i].x = Clamp(rpoly.points[i].x, 0, width_ - 1);
-        right_points_[i].y = Clamp(rpoly.points[i].y, 0, height_ - 1);
-        rcount++;
+        right_draw_.points[i].x = Clamp(rpoly.points[i].x, 0, width_ - 1);
+        right_draw_.points[i].y = Clamp(rpoly.points[i].y, 0, height_ - 1);
+        right_draw_.count++;
     }
-    if (rcount > 0) {
-        right_points_[rcount] = right_points_[0];
-        rcount++;
-    }
-    lv_line_set_points(right_eye_, right_points_, rcount);
+    right_draw_.opa = static_cast<lv_opa_t>(s.right.brightness * 255);
 
-    uint8_t rbri = static_cast<uint8_t>(s.right.brightness * 255);
-    lv_obj_set_style_line_opa(right_eye_, rbri, 0);
-
-    if (s.left.visible && lcount > 1) {
+    if (s.left.visible && left_draw_.count > 2) {
         lv_obj_remove_flag(left_eye_, LV_OBJ_FLAG_HIDDEN);
     } else {
         lv_obj_add_flag(left_eye_, LV_OBJ_FLAG_HIDDEN);
     }
 
-    if (s.right.visible && rcount > 1) {
+    if (s.right.visible && right_draw_.count > 2) {
         lv_obj_remove_flag(right_eye_, LV_OBJ_FLAG_HIDDEN);
     } else {
         lv_obj_add_flag(right_eye_, LV_OBJ_FLAG_HIDDEN);
+    }
+
+    lv_obj_invalidate(left_eye_);
+    lv_obj_invalidate(right_eye_);
+}
+
+lv_obj_t* ProceduralDisplay::CreateEyeObj(lv_obj_t* parent) {
+    lv_obj_t* obj = lv_obj_create(parent);
+    lv_obj_remove_style_all(obj);
+    lv_obj_set_size(obj, LV_PCT(100), LV_PCT(100));
+    lv_obj_set_pos(obj, 0, 0);
+    lv_obj_set_style_bg_opa(obj, LV_OPA_TRANSP, 0);
+    lv_obj_set_style_border_width(obj, 0, 0);
+    lv_obj_add_flag(obj, LV_OBJ_FLAG_CLICKABLE);
+    lv_obj_add_event_cb(obj, EyeDrawEventCb, LV_EVENT_DRAW_MAIN, nullptr);
+    return obj;
+}
+
+void ProceduralDisplay::EyeDrawEventCb(lv_event_t* e) {
+    lv_obj_t* obj = static_cast<lv_obj_t*>(lv_event_get_target(e));
+    lv_layer_t* layer = static_cast<lv_layer_t*>(lv_event_get_param(e));
+
+    auto* disp = static_cast<ProceduralDisplay*>(lv_obj_get_user_data(obj));
+    if (!disp || !layer) return;
+
+    if (obj == disp->left_eye_) {
+        DrawFilledPolygon(layer, disp->left_draw_);
+    } else if (obj == disp->right_eye_) {
+        DrawFilledPolygon(layer, disp->right_draw_);
+    }
+}
+
+void ProceduralDisplay::DrawFilledPolygon(lv_layer_t* layer, const EyeDrawData& data) {
+    if (data.count < 3) return;
+
+    float cx = 0, cy = 0;
+    for (uint8_t i = 0; i < data.count; ++i) {
+        cx += data.points[i].x;
+        cy += data.points[i].y;
+    }
+    cx /= data.count;
+    cy /= data.count;
+
+    lv_point_precise_t center = { static_cast<int32_t>(cx), static_cast<int32_t>(cy) };
+
+    for (uint8_t i = 0; i < data.count; ++i) {
+        uint8_t next = (i + 1) % data.count;
+
+        lv_draw_triangle_dsc_t tri_dsc;
+        lv_draw_triangle_dsc_init(&tri_dsc);
+        tri_dsc.p[0] = center;
+        tri_dsc.p[1] = data.points[i];
+        tri_dsc.p[2] = data.points[next];
+        tri_dsc.color = data.color;
+        tri_dsc.opa = data.opa;
+
+        lv_draw_triangle(layer, &tri_dsc);
     }
 }
 

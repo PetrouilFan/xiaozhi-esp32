@@ -1,5 +1,5 @@
 // procedural/procedural_display.h
-// Robot face display using lv_line for wireframe eye rendering
+// Robot face display with filled polygon eye rendering
 #pragma once
 
 #include "lcd_display.h"
@@ -33,8 +33,14 @@ public:
     void SetFaceState(FacePhase phase);
     void PlayClip(const Clip* clip);
 
+    struct EyeDrawData {
+        lv_point_precise_t points[16];
+        uint8_t count = 0;
+        lv_color_t color;
+        lv_opa_t opa = LV_OPA_COVER;
+    };
+
 protected:
-    // Lock/Unlock inherited from SpiLcdDisplay (uses DisplayLockGuard)
 
 private:
     static constexpr float DEFAULT_EYE_SEPARATION = 60.0f;
@@ -43,8 +49,8 @@ private:
 
     lv_obj_t* left_eye_ = nullptr;
     lv_obj_t* right_eye_ = nullptr;
-    lv_point_precise_t left_points_[17];
-    lv_point_precise_t right_points_[17];
+    EyeDrawData left_draw_;
+    EyeDrawData right_draw_;
 
     lv_obj_t* status_label_ = nullptr;
     lv_obj_t* chat_label_ = nullptr;
@@ -66,6 +72,9 @@ private:
     void UpdateFromScheduler();
     static void AnimTimerCallback(void* arg);
     static void NotifTimerCallback(void* arg);
+    static void EyeDrawEventCb(lv_event_t* e);
+    static lv_obj_t* CreateEyeObj(lv_obj_t* parent);
+    static void DrawFilledPolygon(lv_layer_t* layer, const EyeDrawData& data);
 };
 
 } // namespace procedural
