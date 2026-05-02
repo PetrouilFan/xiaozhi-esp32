@@ -309,45 +309,13 @@ void ProceduralDisplay::UpdateFromScheduler() {
     }
 
     float now_sec = now_ms / 1000.0f;
-    current_face_ = scheduler_.Update(now_sec);
+    current_face_ = scheduler_.Update(now_sec, current_phase_);
 
-    static uint32_t last_blink_ms = 0;
-    if (current_phase_ == FacePhase::IDLE || current_phase_ == FacePhase::LISTENING) {
-        if (now_ms - last_blink_ms > 4000 + (esp_random() % 3000)) {
-            if (!scheduler_.IsPlaying("blink") && !scheduler_.IsPlaying("doubleblink") &&
-                !scheduler_.IsPlaying("slowblink")) {
-                int r = esp_random() % 100;
-                const Clip* clip = nullptr;
-                if (r < 70) clip = AnimationLibrary::Blink();
-                else if (r < 90) clip = AnimationLibrary::DoubleBlink();
-                else clip = AnimationLibrary::SlowBlink();
-                if (clip) {
-                    PlayClip(clip);
-                    last_blink_ms = now_ms;
-                }
-            }
+    static uint32_t last_autonomous_ms = 0;
+    if (now_ms - last_autonomous_ms > 1500) {
+        if (scheduler_.TryPlayAutonomous(current_phase_, now_ms)) {
+            last_autonomous_ms = now_ms;
         }
-    }
-
-    static uint32_t last_behavior_ms = 0;
-    if (now_ms - last_behavior_ms > 1000) {
-        if (current_phase_ == FacePhase::IDLE) {
-            if (!scheduler_.IsPlaying("breathing"))
-                PlayClip(AnimationLibrary::Breathing());
-            if (!scheduler_.IsPlaying("micro_tilt"))
-                PlayClip(AnimationLibrary::MicroTilt());
-            scheduler_.Stop("sleepidle");
-        } else if (current_phase_ == FacePhase::SLEEPING) {
-            if (!scheduler_.IsPlaying("sleepidle"))
-                PlayClip(AnimationLibrary::SleepIdle());
-            scheduler_.Stop("breathing");
-            scheduler_.Stop("micro_tilt");
-        } else {
-            scheduler_.Stop("breathing");
-            scheduler_.Stop("micro_tilt");
-            scheduler_.Stop("sleepidle");
-        }
-        last_behavior_ms = now_ms;
     }
 
     UpdateFaceGeometry();

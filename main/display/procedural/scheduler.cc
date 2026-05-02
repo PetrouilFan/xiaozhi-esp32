@@ -1,5 +1,6 @@
 // procedural/scheduler.cc
 #include "scheduler.h"
+#include "animation_library.h"
 #include "timeline.h"
 #include <cstring>
 #include <string>
@@ -14,6 +15,12 @@ void Scheduler::Play(const Clip* c) {
     active_[active_count_++];
 }
 
+void Scheduler::Play(const char* clip_name) {
+    if (!clip_name) return;
+    const Clip* c = AnimationLibrary::Get(clip_name);
+    if (c) Play(c);
+}
+
 void Scheduler::Stop(const char* n) {
     size_t l = strlen(n);
     for (uint8_t i = 0; i < active_count_; ) {
@@ -21,7 +28,8 @@ void Scheduler::Stop(const char* n) {
     }
 }
 
-FaceState Scheduler::Update(float t) {
+FaceState Scheduler::Update(float t, FacePhase current_phase) {
+    current_phase_ = current_phase;
     FaceState s = base_state_;
     for (uint8_t i = 0; i < active_count_; ) {
         Active& a = active_[i];
@@ -83,6 +91,76 @@ void Scheduler::Remove(uint8_t idx) {
     if (idx >= active_count_) return;
     for (uint8_t i = idx; i < active_count_-1; ++i) active_[i] = active_[i+1];
     --active_count_;
+}
+
+namespace {
+
+static const BehaviorEntry behavior_pool[] = {
+    // Common tier (high frequency, idle-safe)
+    {"breathing", nullptr, BehaviorTier::COMMON, 0x01, 3000, 10},      // IDLE only, 3s cooldown
+    {"micro_tilt", nullptr, BehaviorTier::COMMON, 0x01, 2000, 8},
+    {"microtiltswap", nullptr, BehaviorTier::COMMON, 0x01, 2500, 6},
+    {"tinyfocusnarrow", nullptr, BehaviorTier::COMMON, 0x03, 4000, 5},   // IDLE|LISTENING
+
+    // Occasional tier (medium frequency)
+    {"softsquish", nullptr, BehaviorTier::OCCASIONAL, 0x01, 5000, 6},
+    {"sleepyrecover", nullptr, BehaviorTier::OCCASIONAL, 0x01, 6000, 4},
+    {"slowblink", nullptr, BehaviorTier::OCCASIONAL, 0x03, 3500, 8},
+    {"doubleblink", nullptr, BehaviorTier::OCCASIONAL, 0x03, 3500, 5},
+
+    // Rare tier (low frequency, expressive)
+    {"suspicious", nullptr, BehaviorTier::RARE, 0x01, 8000, 3},
+    {"curiouspeek", nullptr, BehaviorTier::RARE, 0x01, 10000, 2},
+    {"yawn", nullptr, BehaviorTier::RARE, 0x10, 15000, 2},   // SLEEPING only
+    {"orbitsearch", nullptr, BehaviorTier::RARE, 0x01, 7000, 3},
+    {"sleeppeek", nullptr, BehaviorTier::RARE, 0x10, 8000, 2},   // SLEEPING only
+};
+
+static constexpr uint8_t kBehaviorCount = sizeof(behavior_pool) / sizeof(behavior_pool[0]);
+
+} // anonymous namespace
+
+bool Scheduler::TryPlayAutonomous(FacePhase phase, uint32_t now_ms) {
+    uint8_t tier_weights_common = 0, tier_weights_occasion = 0, tier_weights_rare = 0;
+
+    for (uint8_t i = 0; i < kBehaviorCount; ++i) {
+        const BehaviorEntry& b = behavior_pool[i];
+        if (!(b.min_phase_mask & (1 << static_cast<uint8_t>(phase)))) continue;
+        if (now_ms - last_behavior_ms_[i] < b.cooldown_ms) continue;
+        if (b.tier == BehaviorTier::COMMON) tier_weights_common += b.weight;
+        else if (b.tier == BehaviorTier::OCCASIONAL) tier_weights_occasion += b.weight;
+        else tier_weights_rare += b.weight;
+    }
+
+    uint32_t r = now_ms % 100;
+    BehaviorTier selected_tier;
+    if (r < 60) selected_tier = BehaviorTier::COMMON;
+    else if (r < 85) selected_tier = BehaviorTier::OCCASIONAL;
+    else selected_tier = BehaviorTier::RARE;
+
+    uint8_t tier_total = 0;
+    if (selected_tier == BehaviorTier::COMMON) tier_total = tier_weights_common;
+    else if (selected_tier == BehaviorTier::OCCASIONAL) tier_total = tier_weights_occasion;
+    else tier_total = tier_weights_rare;
+
+    if (tier_total == 0) return false;
+
+    uint8_t selection = (now_ms / 7) % tier_total;
+    uint8_t cum = 0;
+    for (uint8_t i = 0; i < kBehaviorCount; ++i) {
+        const BehaviorEntry& b = behavior_pool[i];
+        if (b.tier != selected_tier) continue;
+        if (!(b.min_phase_mask & (1 << static_cast<uint8_t>(phase)))) continue;
+        if (now_ms - last_behavior_ms_[i] < b.cooldown_ms) continue;
+
+        cum += b.weight;
+        if (cum > selection) {
+            if (b.clip) Play(b.clip);
+            last_behavior_ms_[i] = now_ms;
+            return true;
+        }
+    }
+    return false;
 }
 
 } // namespace procedural
