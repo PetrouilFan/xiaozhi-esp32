@@ -5,6 +5,7 @@ namespace procedural {
 
 class EyeShape {
 public:
+    static constexpr float kCenterPxPerUnit = 18.0f;  // pixels per normalized unit for eye translation
     static constexpr uint8_t MAX_POINTS = 32;
     struct Polygon { Point points[MAX_POINTS]; uint8_t count; };
     static Polygon GenerateContour(const EyeParameters& eye, int16_t cx, int16_t cy, int16_t base_w=48, int16_t base_h=64);

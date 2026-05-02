@@ -38,7 +38,9 @@ EyeShape::Polygon EyeShape::GenerateContour(const EyeParameters& eye, int16_t cx
     for (uint8_t i = 0; i < 16; ++i) {
         float xr = temp[i].x * cos_r - temp[i].y * sin_r;
         float yr = temp[i].x * sin_r + temp[i].y * cos_r;
-        Point p = { int16_t(cx + xr), int16_t(cy + yr) };
+        float px = cx + eye.center_x * kCenterPxPerUnit + xr;
+        float py = cy + eye.center_y * kCenterPxPerUnit + yr;
+        Point p = { int16_t(px), int16_t(py) };
         if (poly.count > 0 && p.x == poly.points[poly.count-1].x && p.y == poly.points[poly.count-1].y) continue;
         if (poly.count < MAX_POINTS) poly.points[poly.count++] = p;
     }

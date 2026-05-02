@@ -1,5 +1,6 @@
 // procedural/scheduler.cc
 #include "scheduler.h"
+#include "timeline.h"
 #include <cstring>
 #include <string>
 
@@ -65,6 +66,8 @@ FaceState Scheduler::Update(float t) {
             s.left.top_cut = s.right.top_cut = open*0.5f;
             s.left.bottom_cut = s.right.bottom_cut = open*0.4f;
             s.left.brightness = s.right.brightness = 0.3f + p*0.7f;
+        } else if (a.clip->timeline) {
+            a.clip->timeline->ApplyToState(s, a.local);
         }
         ++i;
     }

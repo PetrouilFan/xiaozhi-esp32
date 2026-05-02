@@ -220,7 +220,7 @@ private:
         io_config.cs_gpio_num = DISPLAY_SPI_CS_PIN;
         io_config.dc_gpio_num = DISPLAY_SPI_DC_PIN;
         io_config.spi_mode = 0;
-        io_config.pclk_hz = 60 * 1000 * 1000;
+        io_config.pclk_hz = DISPLAY_SPI_SCLK_HZ;
         io_config.trans_queue_depth = 10;
         io_config.lcd_cmd_bits = 8;
         io_config.lcd_param_bits = 8;
@@ -235,19 +235,21 @@ private:
         ESP_ERROR_CHECK(esp_lcd_new_panel_st7789(panel_io, &panel_config, &panel));
         ESP_ERROR_CHECK(esp_lcd_panel_reset(panel));
         EnableLcdCs();
-        ESP_ERROR_CHECK(esp_lcd_panel_init(panel));
-        ESP_ERROR_CHECK(esp_lcd_panel_swap_xy(panel, DISPLAY_SWAP_XY));
-        ESP_ERROR_CHECK(esp_lcd_panel_mirror(panel, DISPLAY_MIRROR_X, DISPLAY_MIRROR_Y));
-        ESP_ERROR_CHECK(esp_lcd_panel_invert_color(panel, true));
+    ESP_ERROR_CHECK(esp_lcd_panel_init(panel));
+    ESP_ERROR_CHECK(esp_lcd_panel_swap_xy(panel, DISPLAY_SWAP_XY));
+    ESP_ERROR_CHECK(esp_lcd_panel_mirror(panel, DISPLAY_MIRROR_X, DISPLAY_MIRROR_Y));
+    ESP_ERROR_CHECK(esp_lcd_panel_invert_color(panel, true));
 
-        // uint8_t data_0xBB[] = { 0x3F };
-        // esp_lcd_panel_io_tx_param(panel_io, 0xBB, data_0xBB, sizeof(data_0xBB));
+    // uint8_t data_0xBB[] = { 0x3F };
+    // esp_lcd_panel_io_tx_param(panel_io, 0xBB, data_0xBB, sizeof(data_0xBB));
 
-        uint8_t data_0xBB[] = { 0x38 };
-        esp_lcd_panel_io_tx_param(panel_io, 0xBB, data_0xBB, sizeof(data_0xBB));
+    uint8_t data_0xBB[] = { 0x3F };
+    esp_lcd_panel_io_tx_param(panel_io, 0xBB, data_0xBB, sizeof(data_0xBB));
 
 #if CONFIG_USE_PROCEDURAL_DISPLAY
-        display_ = new procedural::ProceduralDisplay(panel_io, panel, DISPLAY_WIDTH, DISPLAY_HEIGHT);
+        display_ = new procedural::ProceduralDisplay(panel_io, panel, DISPLAY_WIDTH, DISPLAY_HEIGHT,
+                                                     DISPLAY_OFFSET_X, DISPLAY_OFFSET_Y,
+                                                     DISPLAY_MIRROR_X, DISPLAY_MIRROR_Y, DISPLAY_SWAP_XY);
 #else
         display_ = new SpiLcdDisplay(panel_io, panel,
                                      DISPLAY_WIDTH, DISPLAY_HEIGHT, DISPLAY_OFFSET_X, DISPLAY_OFFSET_Y, DISPLAY_MIRROR_X, DISPLAY_MIRROR_Y, DISPLAY_SWAP_XY);

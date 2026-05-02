@@ -15,6 +15,12 @@ public:
     static const Clip* WakeEnter();
     static const Clip* Blink();
     static const Clip* BootOpen();
+    static const Clip* Breathing();
+    static const Clip* MicroTilt();
+    static const Clip* SlowBlink();
+    static const Clip* DoubleBlink();
+    static const Clip* SleepIdle();
+    static const Clip* TestHorizontal();
 };
 
 } // namespace procedural
