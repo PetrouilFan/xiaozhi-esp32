@@ -74,7 +74,7 @@ private:
     static void NotifTimerCallback(void* arg);
     static void EyeDrawEventCb(lv_event_t* e);
     static lv_obj_t* CreateEyeObj(lv_obj_t* parent);
-    static void DrawFilledPolygon(lv_layer_t* layer, const EyeDrawData& data);
+    static void DrawFilledPolygon(lv_layer_t* layer, const EyeDrawData& data, int max_width, int max_height);
 };
 
 } // namespace procedural

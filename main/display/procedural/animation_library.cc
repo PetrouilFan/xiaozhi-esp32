@@ -40,6 +40,26 @@ static Timeline timeline_slowblink;
 static Timeline timeline_doubleblink;
 static Timeline timeline_sleepidle;
 static Timeline timeline_test_horizontal;
+static Timeline timeline_softsquish;
+static Timeline timeline_microtiltswap;
+static Timeline timeline_tinyfocusnarrow;
+static Timeline timeline_sleepyrecover;
+static Timeline timeline_suspicious;
+static Timeline timeline_curiouspeek;
+static Timeline timeline_yawn;
+static Timeline timeline_orbitsearch;
+static Timeline timeline_sleeppeek;
+
+// New timeline-based clips
+static Clip clip_softsquish     = {"softsquish", 0.6f, 3, false, true, nullptr, 0, 0, &timeline_softsquish};
+static Clip clip_microtiltswap  = {"microtiltswap", 0.5f, 3, true, true, nullptr, 0, 0, &timeline_microtiltswap};
+static Clip clip_tinyfocusnarrow = {"tinyfocusnarrow", 0.8f, 3, false, true, nullptr, 0, 0, &timeline_tinyfocusnarrow};
+static Clip clip_sleepyrecover = {"sleepyrecover", 1.0f, 3, false, true, nullptr, 0, 0, &timeline_sleepyrecover};
+static Clip clip_suspicious = {"suspicious", 1.2f, 4, false, true, nullptr, 0, 0, &timeline_suspicious};
+static Clip clip_curiouspeek = {"curiouspeek", 1.5f, 4, false, true, nullptr, 0, 0, &timeline_curiouspeek};
+static Clip clip_yawn         = {"yawn", 2.0f, 3, false, true, nullptr, 0, 0, &timeline_yawn};
+static Clip clip_orbitsearch = {"orbitsearch", 2.5f, 3, true, true, nullptr, 0, 0, &timeline_orbitsearch};
+static Clip clip_sleeppeek    = {"sleeppeek", 1.0f, 3, false, true, nullptr, 0, 0, &timeline_sleeppeek};
 
 // --- Angry clip keyframes (16 tracks) ---
 static KeyFrame angry_left_inner_corner_raise[] = {
@@ -237,6 +257,144 @@ static KeyFrame test_lx[] = {
     {0.75f, 1.0f, EasingType::EASE_OUT_CUBIC},
     {1.00f, 0.0f, EasingType::EASE_IN_OUT_SINE}
 };
+
+// --- Softsquish keyframes (4 tracks) ---
+static KeyFrame ss_left_scale_y[] = {
+    {0.00f, 1.0f}, {0.15f, 0.8f, EasingType::EASE_OUT_CUBIC},
+    {0.45f, 0.85f}, {0.60f, 1.0f, EasingType::EASE_IN_CUBIC}
+};
+static KeyFrame ss_left_scale_x[] = {
+    {0.00f, 1.0f}, {0.15f, 1.15f, EasingType::EASE_OUT_CUBIC},
+    {0.45f, 1.1f}, {0.60f, 1.0f, EasingType::EASE_IN_CUBIC}
+};
+static KeyFrame ss_right_scale_y[] = {
+    {0.00f, 1.0f}, {0.18f, 0.82f, EasingType::EASE_OUT_CUBIC},
+    {0.48f, 0.87f}, {0.60f, 1.0f, EasingType::EASE_IN_CUBIC}
+};
+static KeyFrame ss_right_scale_x[] = {
+    {0.00f, 1.0f}, {0.18f, 1.18f, EasingType::EASE_OUT_CUBIC},
+    {0.48f, 1.12f}, {0.60f, 1.0f, EasingType::EASE_IN_CUBIC}
+};
+
+// --- Microtiltswap keyframes (1 track) ---
+static KeyFrame mts_tilt[] = {
+    {0.00f, 0.0f}, {0.25f, 3.0f, EasingType::EASE_IN_OUT_SINE},
+    {0.50f, 0.0f, EasingType::EASE_IN_OUT_SINE}
+};
+
+// --- Tinyfocusnarrow keyframes (2 tracks) ---
+static KeyFrame tfn_left_scale_y[] = {
+    {0.00f, 0.85f}, {0.20f, 0.75f, EasingType::EASE_OUT_CUBIC},
+    {0.80f, 0.85f, EasingType::EASE_IN_CUBIC}
+};
+static KeyFrame tfn_right_scale_y[] = {
+    {0.00f, 0.85f}, {0.22f, 0.77f, EasingType::EASE_OUT_CUBIC},
+    {0.82f, 0.85f, EasingType::EASE_IN_CUBIC}
+};
+
+// --- Sleepyrecover keyframes (3 tracks) ---
+static KeyFrame sr_left_top[] = {
+    {0.00f, 0.35f}, {0.30f, 0.15f, EasingType::EASE_OUT_CUBIC},
+    {1.00f, 0.10f, EasingType::EASE_IN_CUBIC}
+};
+static KeyFrame sr_right_top[] = {
+    {0.00f, 0.38f}, {0.33f, 0.18f, EasingType::EASE_OUT_CUBIC},
+    {1.00f, 0.10f, EasingType::EASE_IN_CUBIC}
+};
+static KeyFrame sr_face_offset_y[] = {
+    {0.00f, 0.1f}, {0.50f, 0.0f, EasingType::EASE_OUT_CUBIC},
+    {1.00f, 0.0f, EasingType::EASE_IN_CUBIC}
+};
+
+// --- Suspicious keyframes (4 tracks) ---
+static KeyFrame sus_left_center_x[] = {
+    {0.00f, 0.0f}, {0.30f, 0.25f, EasingType::EASE_OUT_CUBIC},
+    {0.90f, 0.2f}, {1.20f, 0.0f, EasingType::EASE_IN_CUBIC}
+};
+static KeyFrame sus_right_center_x[] = {
+    {0.00f, 0.0f}, {0.33f, 0.18f, EasingType::EASE_OUT_CUBIC},
+    {0.93f, 0.15f}, {1.20f, 0.0f, EasingType::EASE_IN_CUBIC}
+};
+static KeyFrame sus_left_scale_y[] = {
+    {0.00f, 0.85f}, {0.30f, 0.75f, EasingType::EASE_OUT_CUBIC},
+    {0.90f, 0.78f}, {1.20f, 0.85f, EasingType::EASE_IN_CUBIC}
+};
+static KeyFrame sus_right_scale_y[] = {
+    {0.00f, 0.85f}, {0.33f, 0.78f, EasingType::EASE_OUT_CUBIC},
+    {0.93f, 0.8f}, {1.20f, 0.85f, EasingType::EASE_IN_CUBIC}
+};
+
+// --- Curiouspeek keyframes (5 tracks) ---
+static KeyFrame cp_left_center_x[] = {
+    {0.00f, 0.0f}, {0.20f, -0.3f, EasingType::EASE_OUT_CUBIC},
+    {0.70f, -0.25f}, {1.0f, 0.0f}, {1.50f, 0.0f}
+};
+static KeyFrame cp_right_center_x[] = {
+    {0.00f, 0.0f}, {0.22f, 0.35f, EasingType::EASE_OUT_CUBIC},
+    {0.72f, 0.3f}, {1.0f, 0.0f}, {1.50f, 0.0f}
+};
+static KeyFrame cp_left_scale[] = {
+    {0.00f, 1.0f}, {0.20f, 0.9f, EasingType::EASE_OUT_CUBIC},
+    {0.70f, 0.92f}, {1.0f, 1.0f}, {1.50f, 1.0f}
+};
+static KeyFrame cp_right_scale[] = {
+    {0.00f, 1.0f}, {0.22f, 0.92f, EasingType::EASE_OUT_CUBIC},
+    {0.72f, 0.95f}, {1.0f, 1.0f}, {1.50f, 1.0f}
+};
+static KeyFrame cp_face_offset_x[] = {
+    {0.00f, 0.0f}, {0.50f, -0.15f, EasingType::EASE_OUT_CUBIC},
+    {1.50f, 0.0f, EasingType::EASE_IN_CUBIC}
+};
+
+// --- Yawn keyframes (4 tracks) ---
+static KeyFrame yawn_left_bottom[] = {
+    {0.00f, 0.0f}, {0.40f, 0.45f, EasingType::EASE_IN_CUBIC},
+    {1.2f, 0.45f}, {1.60f, 0.0f, EasingType::EASE_OUT_CUBIC}
+};
+static KeyFrame yawn_right_bottom[] = {
+    {0.00f, 0.0f}, {0.43f, 0.48f, EasingType::EASE_IN_CUBIC},
+    {1.23f, 0.48f}, {1.60f, 0.0f, EasingType::EASE_OUT_CUBIC}
+};
+static KeyFrame yawn_left_top[] = {
+    {0.00f, 0.10f}, {0.60f, 0.0f}, {1.0f, 0.0f},
+    {1.60f, 0.10f, EasingType::EASE_OUT_CUBIC}
+};
+static KeyFrame yawn_right_top[] = {
+    {0.00f, 0.10f}, {0.63f, 0.0f}, {1.03f, 0.0f},
+    {1.60f, 0.10f, EasingType::EASE_OUT_CUBIC}
+};
+
+// --- Orbitsearch keyframes (2 tracks) ---
+static KeyFrame os_left_center_x[] = {
+    {0.00f, 0.0f}, {0.25f, 0.2f, EasingType::EASE_IN_OUT_SINE},
+    {0.50f, -0.1f, EasingType::EASE_IN_OUT_SINE},
+    {0.75f, 0.15f, EasingType::EASE_IN_OUT_SINE},
+    {1.00f, -0.05f, EasingType::EASE_IN_OUT_SINE},
+    {1.25f, 0.1f, EasingType::EASE_IN_OUT_SINE},
+    {1.50f, 0.0f, EasingType::EASE_IN_OUT_SINE}
+};
+static KeyFrame os_right_center_x[] = {
+    {0.00f, 0.0f}, {0.27f, 0.25f, EasingType::EASE_IN_OUT_SINE},
+    {0.52f, -0.08f, EasingType::EASE_IN_OUT_SINE},
+    {0.77f, 0.2f, EasingType::EASE_IN_OUT_SINE},
+    {1.02f, 0.0f, EasingType::EASE_IN_OUT_SINE},
+    {1.27f, 0.15f, EasingType::EASE_IN_OUT_SINE},
+    {1.50f, 0.0f, EasingType::EASE_IN_OUT_SINE}
+};
+
+// --- Sleeppeek keyframes (3 tracks) ---
+static KeyFrame sp_left_center_y[] = {
+    {0.00f, 0.0f}, {0.20f, -0.15f, EasingType::EASE_OUT_CUBIC},
+    {0.60f, -0.12f}, {1.00f, 0.0f, EasingType::EASE_IN_CUBIC}
+};
+static KeyFrame sp_right_center_y[] = {
+    {0.00f, 0.0f}, {0.23f, -0.18f, EasingType::EASE_OUT_CUBIC},
+    {0.63f, -0.14f}, {1.00f, 0.0f, EasingType::EASE_IN_CUBIC}
+};
+static KeyFrame sp_left_top[] = {
+    {0.00f, 0.35f}, {0.25f, 0.25f, EasingType::EASE_OUT_CUBIC},
+    {0.75f, 0.28f}, {1.00f, 0.35f, EasingType::EASE_IN_CUBIC}
+};
 static KeyFrame test_rx[] = {
     {0.00f, 0.0f, EasingType::LINEAR},
     {0.25f, -1.0f, EasingType::EASE_OUT_CUBIC},
@@ -340,6 +498,52 @@ static void InitTimelines() {
     // Test horizontal: 2 tracks
     timeline_test_horizontal.AddTrack("left.center_x",  test_lx, 5);
     timeline_test_horizontal.AddTrack("right.center_x", test_rx, 5);
+
+    // Softsquish: 4 tracks
+    timeline_softsquish.AddTrack("left.scale_y", ss_left_scale_y, 4);
+    timeline_softsquish.AddTrack("left.scale_x", ss_left_scale_x, 4);
+    timeline_softsquish.AddTrack("right.scale_y", ss_right_scale_y, 4);
+    timeline_softsquish.AddTrack("right.scale_x", ss_right_scale_x, 4);
+
+    // Microtiltswap: 1 track
+    timeline_microtiltswap.AddTrack("face.face_tilt", mts_tilt, 3);
+
+    // Tinyfocusnarrow: 2 tracks
+    timeline_tinyfocusnarrow.AddTrack("left.scale_y", tfn_left_scale_y, 3);
+    timeline_tinyfocusnarrow.AddTrack("right.scale_y", tfn_right_scale_y, 3);
+
+    // Sleepyrecover: 3 tracks
+    timeline_sleepyrecover.AddTrack("left.top_cut", sr_left_top, 3);
+    timeline_sleepyrecover.AddTrack("right.top_cut", sr_right_top, 3);
+    timeline_sleepyrecover.AddTrack("face.face_offset_y", sr_face_offset_y, 3);
+
+    // Suspicious: 4 tracks
+    timeline_suspicious.AddTrack("left.center_x", sus_left_center_x, 4);
+    timeline_suspicious.AddTrack("right.center_x", sus_right_center_x, 4);
+    timeline_suspicious.AddTrack("left.scale_y", sus_left_scale_y, 4);
+    timeline_suspicious.AddTrack("right.scale_y", sus_right_scale_y, 4);
+
+    // Curiouspeek: 5 tracks
+    timeline_curiouspeek.AddTrack("left.center_x", cp_left_center_x, 5);
+    timeline_curiouspeek.AddTrack("right.center_x", cp_right_center_x, 5);
+    timeline_curiouspeek.AddTrack("left.scale_x", cp_left_scale, 5);
+    timeline_curiouspeek.AddTrack("right.scale_x", cp_right_scale, 5);
+    timeline_curiouspeek.AddTrack("face.face_offset_x", cp_face_offset_x, 3);
+
+    // Yawn: 4 tracks
+    timeline_yawn.AddTrack("left.bottom_cut", yawn_left_bottom, 4);
+    timeline_yawn.AddTrack("right.bottom_cut", yawn_right_bottom, 4);
+    timeline_yawn.AddTrack("left.top_cut", yawn_left_top, 4);
+    timeline_yawn.AddTrack("right.top_cut", yawn_right_top, 4);
+
+    // Orbitsearch: 2 tracks (looping)
+    timeline_orbitsearch.AddTrack("left.center_x", os_left_center_x, 7);
+    timeline_orbitsearch.AddTrack("right.center_x", os_right_center_x, 7);
+
+    // Sleeppeek: 3 tracks
+    timeline_sleeppeek.AddTrack("left.center_y", sp_left_center_y, 4);
+    timeline_sleeppeek.AddTrack("right.center_y", sp_right_center_y, 4);
+    timeline_sleeppeek.AddTrack("left.top_cut", sp_left_top, 4);
 }
 
 // ==================== Public API ====================
@@ -364,6 +568,16 @@ const Clip* AnimationLibrary::Get(const char* n) {
     if (!strcmp(n, "doubleblink")) { InitTimelines(); return &clip_doubleblink; }
     if (!strcmp(n, "sleepidle")) { InitTimelines(); return &clip_sleepidle; }
     if (!strcmp(n, "test_horizontal")) { InitTimelines(); return &clip_test_horizontal; }
+    // New clips
+    if (!strcmp(n, "softsquish")) { InitTimelines(); return &clip_softsquish; }
+    if (!strcmp(n, "microtiltswap")) { InitTimelines(); return &clip_microtiltswap; }
+    if (!strcmp(n, "tinyfocusnarrow")) { InitTimelines(); return &clip_tinyfocusnarrow; }
+    if (!strcmp(n, "sleepyrecover")) { InitTimelines(); return &clip_sleepyrecover; }
+    if (!strcmp(n, "suspicious")) { InitTimelines(); return &clip_suspicious; }
+    if (!strcmp(n, "curiouspeek")) { InitTimelines(); return &clip_curiouspeek; }
+    if (!strcmp(n, "yawn")) { InitTimelines(); return &clip_yawn; }
+    if (!strcmp(n, "orbitsearch")) { InitTimelines(); return &clip_orbitsearch; }
+    if (!strcmp(n, "sleeppeek")) { InitTimelines(); return &clip_sleeppeek; }
     return nullptr;
 }
 const Clip* AnimationLibrary::Happy()      { Init(); return &clip_happy; }

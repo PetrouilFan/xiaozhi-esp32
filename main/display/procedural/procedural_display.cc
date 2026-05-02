@@ -460,37 +460,72 @@ void ProceduralDisplay::EyeDrawEventCb(lv_event_t* e) {
     if (!disp || !layer) return;
 
     if (obj == disp->left_eye_) {
-        DrawFilledPolygon(layer, disp->left_draw_);
+        DrawFilledPolygon(layer, disp->left_draw_, disp->width_, disp->height_);
     } else if (obj == disp->right_eye_) {
-        DrawFilledPolygon(layer, disp->right_draw_);
+        DrawFilledPolygon(layer, disp->right_draw_, disp->width_, disp->height_);
     }
 }
 
-void ProceduralDisplay::DrawFilledPolygon(lv_layer_t* layer, const EyeDrawData& data) {
+void ProceduralDisplay::DrawFilledPolygon(lv_layer_t* layer, const EyeDrawData& data, int max_width, int max_height) {
     if (data.count < 3) return;
 
-    float cx = 0, cy = 0;
+    int16_t min_y = 32767, max_y = -32768;
     for (uint8_t i = 0; i < data.count; ++i) {
-        cx += data.points[i].x;
-        cy += data.points[i].y;
+        if (data.points[i].y < min_y) min_y = data.points[i].y;
+        if (data.points[i].y > max_y) max_y = data.points[i].y;
     }
-    cx /= data.count;
-    cy /= data.count;
+    if (min_y > max_y) return;
 
-    lv_point_precise_t center = { static_cast<int32_t>(cx), static_cast<int32_t>(cy) };
+    int16_t y_start = (min_y < 0) ? 0 : min_y;
+    int16_t y_end = (max_y >= max_height) ? max_height - 1 : max_y;
 
-    for (uint8_t i = 0; i < data.count; ++i) {
-        uint8_t next = (i + 1) % data.count;
+    struct ScanlineIntersection { int16_t x; int16_t dir; };
+    ScanlineIntersection intersects[32];
 
-        lv_draw_triangle_dsc_t tri_dsc;
-        lv_draw_triangle_dsc_init(&tri_dsc);
-        tri_dsc.p[0] = center;
-        tri_dsc.p[1] = data.points[i];
-        tri_dsc.p[2] = data.points[next];
-        tri_dsc.color = data.color;
-        tri_dsc.opa = data.opa;
+    for (int16_t y = y_start; y <= y_end; ++y) {
+        uint8_t intersect_count = 0;
 
-        lv_draw_triangle(layer, &tri_dsc);
+        for (uint8_t i = 0; i < data.count; ++i) {
+            uint8_t next = (i + 1) % data.count;
+            int16_t y0 = data.points[i].y;
+            int16_t y1 = data.points[next].y;
+            int16_t x0 = data.points[i].x;
+            int16_t x1 = data.points[next].x;
+
+            if ((y0 <= y && y1 > y) || (y1 <= y && y0 > y)) {
+                float slope = float(x1 - x0) / float(y1 - y0);
+                float x_inter = x0 + slope * float(y - y0);
+                intersects[intersect_count++] = { int16_t(x_inter), 0 };
+            }
+        }
+
+        if (intersect_count < 2) continue;
+
+        for (uint8_t i = 0; i < intersect_count - 1; ++i) {
+            for (uint8_t j = i + 1; j < intersect_count; ++j) {
+                if (intersects[i].x > intersects[j].x) {
+                    auto temp = intersects[i];
+                    intersects[i] = intersects[j];
+                    intersects[j] = temp;
+                }
+            }
+        }
+
+        for (uint8_t i = 0; i + 1 < intersect_count; i += 2) {
+            int16_t x1 = Clamp(intersects[i].x, 0, max_width - 1);
+            int16_t x2 = Clamp(intersects[i + 1].x, 0, max_width - 1);
+            if (x2 <= x1) continue;
+
+            lv_draw_line_dsc_t line_dsc;
+            lv_draw_line_dsc_init(&line_dsc);
+            line_dsc.p1 = { x1, y };
+            line_dsc.p2 = { x2, y };
+            line_dsc.color = data.color;
+            line_dsc.opa = data.opa;
+            line_dsc.width = 1;
+
+            lv_draw_line(layer, &line_dsc);
+        }
     }
 }
 
