@@ -2,6 +2,7 @@
 #include "scheduler.h"
 #include "animation_library.h"
 #include "timeline.h"
+#include <esp_log.h>
 #include <cstring>
 #include <string>
 
@@ -155,6 +156,7 @@ bool Scheduler::TryPlayAutonomous(FacePhase phase, uint32_t now_ms) {
 
         cum += b.weight;
         if (cum > selection) {
+            SCHEDULER_DEBUG("playing: %s, tier: %d", b.name, (int)selected_tier);
             if (b.clip) Play(b.clip);
             last_behavior_ms_[i] = now_ms;
             return true;

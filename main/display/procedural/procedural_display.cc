@@ -8,11 +8,18 @@
 #include "eye_shape.h"
 
 #include <esp_log.h>
+#include <esp_log.h>
 #include <esp_random.h>
 
 #include <lvgl.h>
 
 #define TAG "ProceduralDisplay"
+
+#ifdef CONFIG_PROCEDURAL_DEBUG
+#define PROCEDURAL_DEBUG(fmt, ...) ESP_LOGI(TAG, fmt, ##__VA_ARGS__)
+#else
+#define PROCEDURAL_DEBUG(fmt, ...)
+#endif
 
 namespace procedural {
 
@@ -314,6 +321,7 @@ void ProceduralDisplay::UpdateFromScheduler() {
     static uint32_t last_autonomous_ms = 0;
     if (now_ms - last_autonomous_ms > 1500) {
         if (scheduler_.TryPlayAutonomous(current_phase_, now_ms)) {
+            PROCEDURAL_DEBUG("autonomous triggered");
             last_autonomous_ms = now_ms;
         }
     }

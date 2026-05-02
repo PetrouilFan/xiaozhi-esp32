@@ -1,6 +1,13 @@
 #pragma once
 #include "types.h"
 
+#ifdef CONFIG_PROCEDURAL_DEBUG
+#include <esp_log.h>
+#define SCHEDULER_DEBUG(fmt, ...) ESP_LOGI("Scheduler", fmt, ##__VA_ARGS__)
+#else
+#define SCHEDULER_DEBUG(fmt, ...)
+#endif
+
 namespace procedural {
 
 enum class BehaviorTier { COMMON, OCCASIONAL, RARE };
