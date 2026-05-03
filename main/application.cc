@@ -70,8 +70,6 @@ void Application::Initialize() {
     if (backlight) {
         backlight->RestoreBrightness();
     }
-    // Print board name/version info
-    display->SetChatMessage("system", SystemInfo::GetUserAgent().c_str());
 
     // Setup the audio service
     auto codec = board.GetAudioCodec();
