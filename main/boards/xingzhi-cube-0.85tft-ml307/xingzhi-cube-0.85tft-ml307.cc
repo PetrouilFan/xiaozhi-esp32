@@ -74,8 +74,7 @@ static const nv3023_lcd_init_cmd_t lcd_init_cmds[] = {
     {0xae, (uint8_t[]){0x19}, 1, 0},
     {0xaf, (uint8_t[]){0x08}, 1, 0},
     {0xff, (uint8_t[]){0x00}, 1, 0},
-    {0x11, (uint8_t[]){0x00}, 0, 120},
-    {0x29, (uint8_t[]){0x00}, 0, 10}
+    {0x11, (uint8_t[]){0x00}, 0, 120}
 };
 
 class XINGZHI_CUBE_0_85TFT_ML307 : public Ml307Board {
@@ -164,10 +163,9 @@ private:
         ESP_ERROR_CHECK(esp_lcd_panel_init(panel_));
         ESP_ERROR_CHECK(esp_lcd_panel_swap_xy(panel_, DISPLAY_SWAP_XY));
         ESP_ERROR_CHECK(esp_lcd_panel_mirror(panel_, DISPLAY_MIRROR_X, DISPLAY_MIRROR_Y));
-        ESP_ERROR_CHECK(esp_lcd_panel_invert_color(panel_, false));
-        ESP_ERROR_CHECK(esp_lcd_panel_disp_on_off(panel_, true));
+ESP_ERROR_CHECK(esp_lcd_panel_invert_color(panel_, false));
 
-        display_ = new SpiLcdDisplay(panel_io_, panel_, DISPLAY_WIDTH, DISPLAY_HEIGHT, DISPLAY_OFFSET_X, DISPLAY_OFFSET_Y, 
+    display_ = new SpiLcdDisplay(panel_io_, panel_, DISPLAY_WIDTH, DISPLAY_HEIGHT, DISPLAY_OFFSET_X, DISPLAY_OFFSET_Y,
             DISPLAY_MIRROR_X, DISPLAY_MIRROR_Y, DISPLAY_SWAP_XY);
     }
 
@@ -196,10 +194,10 @@ public:
         InitializePowerManager();
         InitializePowerSaveTimer();
         InitializeSpi();
-        InitializeButtons();
-        InitializeNv3023Display();
-        GetBacklight()->RestoreBrightness();
-    }
+InitializeButtons();
+    InitializeNv3023Display();
+    // Backlight RestoreBrightness deferred to after SetupUI in Application::Initialize
+}
 
     virtual AudioCodec* GetAudioCodec() override {
         static NoAudioCodecSimplex audio_codec(AUDIO_INPUT_SAMPLE_RATE, AUDIO_OUTPUT_SAMPLE_RATE,

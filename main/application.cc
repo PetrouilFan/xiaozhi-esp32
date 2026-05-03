@@ -65,6 +65,11 @@ void Application::Initialize() {
     // Setup the display
     auto display = board.GetDisplay();
     display->SetupUI();
+    // Restore backlight after SetupUI so first LVGL render is visible (avoids white flash)
+    auto backlight = board.GetBacklight();
+    if (backlight) {
+        backlight->RestoreBrightness();
+    }
     // Print board name/version info
     display->SetChatMessage("system", SystemInfo::GetUserAgent().c_str());
 
@@ -546,6 +551,10 @@ void Application::InitializeProtocol() {
                         display->SetChatMessage("assistant", message.c_str());
                     });
                 }
+                // Phase 5: Wire sentence_start to display for emphasis behavior
+                Schedule([display]() {
+                    display->OnSpeechSentenceStart();
+                });
             }
         } else if (strcmp(type->valuestring, "stt") == 0) {
             auto text = cJSON_GetObjectItem(root, "text");
@@ -907,7 +916,7 @@ void Application::HandleStateChangedEvent() {
             break;
         case kDeviceStateSpeaking:
             display->SetStatus(Lang::Strings::SPEAKING);
-            display->SetFaceState(3); // THINKING (transition state while assistant speaks)
+            display->SetFaceState(4); // SPEAKING - distinct from THINKING
 
             if (listening_mode_ != kListeningModeRealtime) {
                 audio_service_.EnableVoiceProcessing(false);

@@ -280,11 +280,11 @@ public:
         InitializeCodecI2c();
         InitializeSpi();
         InitializePowerManager();
-        InitializeSt7789Display();
-        InitializeButtons();
-        GetBacklight()->RestoreBrightness();
+InitializeSt7789Display();
+    InitializeButtons();
+    // Backlight RestoreBrightness deferred to after SetupUI in Application::Initialize
 
-    }
+}
 
     virtual Led* GetLed() override {
         static SingleLed led_strip(BUILTIN_LED_GPIO);
