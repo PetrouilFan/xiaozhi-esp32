@@ -53,8 +53,8 @@ FaceState Scheduler::Update(float t, FacePhase current_phase) {
             s.left.brightness = s.right.brightness = 0.3f + 0.7f*open;
         } else if (!strcmp(n, "happy")) {
             float sq = sinf(p*3.14159f);
-            s.left.scale_y = s.right.scale_y = 0.85f - sq*0.3f;
-            s.left.top_cut = s.right.top_cut = sq*0.3f;
+            s.left.scale_y = s.right.scale_y = 1.0f;
+            s.left.top_cut = s.right.top_cut = sq*0.15f;
         } else if (!strcmp(n, "sad")) {
             float d = sinf(p*3.14159f);
             s.left.outer_corner_raise = s.right.outer_corner_raise = -0.3f*d;
@@ -65,7 +65,7 @@ FaceState Scheduler::Update(float t, FacePhase current_phase) {
             s.left.scale_y = s.right.scale_y = 1.0f + w*0.3f;
         } else if (!strcmp(n, "thinking")) {
             float sq = sinf(p*3.14159f);
-            s.left.scale_y = s.right.scale_y = 0.85f - sq*0.15f;
+            s.left.scale_y = s.right.scale_y = 1.0f;
         } else if (!strcmp(n, "sleep_enter")) {
             s.left.top_cut = s.right.top_cut = p*0.5f;
             s.left.bottom_cut = s.right.bottom_cut = p*0.4f;
@@ -127,7 +127,7 @@ static const BehaviorEntry behavior_pool[] = {
 {"sleeppeek", nullptr, BehaviorTier::RARE, 0x0020, 8000, 2}, // SLEEPING only
 
 // Speaking tier (active during speech)
-{"speaking_squish", nullptr, BehaviorTier::OCCASIONAL, 0x0010, 2000, 4}, // SPEAKING only
+{"speaking_pulse", nullptr, BehaviorTier::OCCASIONAL, 0x0010, 2500, 4}, // SPEAKING only
 {"emphasis_blink", nullptr, BehaviorTier::OCCASIONAL, 0x0010, 3500, 3}, // SPEAKING only
 };
 

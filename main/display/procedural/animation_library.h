@@ -21,10 +21,9 @@ public:
     static const Clip* DoubleBlink();
     static const Clip* SleepIdle();
     static const Clip* TestHorizontal();
-    static const Clip* TinyFocusNarrow();
     static const Clip* BootCloseFirst();
     static const Clip* SpeakingShift();
-    static const Clip* SpeakingSquish();
+    static const Clip* SpeakingPulse();
     static const Clip* EmphasisBlink();
     static const Clip* Lookaway();
     static const Clip* Wander();

@@ -42,9 +42,7 @@ static Timeline timeline_slowblink;
 static Timeline timeline_doubleblink;
 static Timeline timeline_sleepidle;
 static Timeline timeline_test_horizontal;
-static Timeline timeline_softsquish;
 static Timeline timeline_microtiltswap;
-static Timeline timeline_tinyfocusnarrow;
 static Timeline timeline_sleepyrecover;
 static Timeline timeline_suspicious;
 static Timeline timeline_curiouspeek;
@@ -52,15 +50,13 @@ static Timeline timeline_yawn;
 static Timeline timeline_orbitsearch;
 static Timeline timeline_sleeppeek;
 static Timeline timeline_speaking_shift;
-static Timeline timeline_speaking_squish;
+static Timeline timeline_speaking_pulse;
 static Timeline timeline_emphasis_blink;
 static Timeline timeline_lookaway;
 static Timeline timeline_wander;
 
 // New timeline-based clips
-static Clip clip_softsquish     = {"softsquish", 0.6f, 3, false, true, nullptr, 0, 0, &timeline_softsquish};
 static Clip clip_microtiltswap  = {"microtiltswap", 0.5f, 3, true, true, nullptr, 0, 0, &timeline_microtiltswap};
-static Clip clip_tinyfocusnarrow = {"tinyfocusnarrow", 0.8f, 3, false, true, nullptr, 0, 0, &timeline_tinyfocusnarrow};
 static Clip clip_sleepyrecover = {"sleepyrecover", 1.0f, 3, false, true, nullptr, 0, 0, &timeline_sleepyrecover};
 static Clip clip_suspicious = {"suspicious", 1.2f, 4, false, true, nullptr, 0, 0, &timeline_suspicious};
 static Clip clip_curiouspeek = {"curiouspeek", 1.5f, 4, false, true, nullptr, 0, 0, &timeline_curiouspeek};
@@ -68,7 +64,7 @@ static Clip clip_yawn         = {"yawn", 2.0f, 3, false, true, nullptr, 0, 0, &t
 static Clip clip_orbitsearch = {"orbitsearch", 2.5f, 3, true, true, nullptr, 0, 0, &timeline_orbitsearch};
 static Clip clip_sleeppeek    = {"sleeppeek", 1.0f, 3, false, true, nullptr, 0, 0, &timeline_sleeppeek};
 static Clip clip_speaking_shift = {"speaking_shift", 0.6f, 3, true, true, nullptr, 0, 0, &timeline_speaking_shift};
-static Clip clip_speaking_squish = {"speaking_squish", 0.25f, 2, false, false, nullptr, 0, 0, &timeline_speaking_squish};
+static Clip clip_speaking_pulse = {"speaking_pulse", 0.25f, 2, false, false, nullptr, 0, 0, &timeline_speaking_pulse};
 static Clip clip_emphasis_blink = {"emphasis_blink", 0.3f, 4, false, false, nullptr, 0, 0, &timeline_emphasis_blink};
 static Clip clip_lookaway = {"lookaway", 1.2f, 3, false, true, nullptr, 0, 0, &timeline_lookaway};
 static Clip clip_wander = {"wander", 3.0f, 2, true, true, nullptr, 0, 0, &timeline_wander};
@@ -99,12 +95,12 @@ static KeyFrame angry_left_center_x[] = {
     {0.75f, -0.30f}, {1.00f, 0.0f, EasingType::EASE_IN_CUBIC}
 };
 static KeyFrame angry_left_scale_y[] = {
-    {0.00f, 0.85f, EasingType::LINEAR}, {0.25f, 0.72f, EasingType::EASE_OUT_CUBIC},
-    {0.75f, 0.74f}, {1.00f, 0.85f, EasingType::EASE_IN_CUBIC}
+    {0.00f, 1.00f, EasingType::LINEAR}, {0.25f, 1.00f, EasingType::EASE_OUT_CUBIC},
+    {0.75f, 1.00f}, {1.00f, 1.00f, EasingType::EASE_IN_CUBIC}
 };
 static KeyFrame angry_left_scale_x[] = {
-    {0.00f, 0.95f, EasingType::LINEAR}, {0.25f, 1.08f, EasingType::EASE_OUT_CUBIC},
-    {0.75f, 1.06f}, {1.00f, 0.95f, EasingType::EASE_IN_CUBIC}
+    {0.00f, 0.95f, EasingType::LINEAR}, {0.25f, 0.95f, EasingType::EASE_OUT_CUBIC},
+    {0.75f, 0.95f}, {1.00f, 0.95f, EasingType::EASE_IN_CUBIC}
 };
 
 static KeyFrame angry_right_inner_corner_raise[] = {
@@ -132,12 +128,12 @@ static KeyFrame angry_right_center_x[] = {
     {0.82f, 0.30f}, {1.00f, 0.0f, EasingType::EASE_IN_CUBIC}
 };
 static KeyFrame angry_right_scale_y[] = {
-    {0.00f, 0.85f, EasingType::LINEAR}, {0.32f, 0.74f, EasingType::EASE_OUT_CUBIC},
-    {0.82f, 0.76f}, {1.00f, 0.85f, EasingType::EASE_IN_CUBIC}
+    {0.00f, 1.00f, EasingType::LINEAR}, {0.32f, 1.00f, EasingType::EASE_OUT_CUBIC},
+    {0.82f, 1.00f}, {1.00f, 1.00f, EasingType::EASE_IN_CUBIC}
 };
 static KeyFrame angry_right_scale_x[] = {
-    {0.00f, 0.95f, EasingType::LINEAR}, {0.32f, 1.10f, EasingType::EASE_OUT_CUBIC},
-    {0.82f, 1.08f}, {1.00f, 0.95f, EasingType::EASE_IN_CUBIC}
+    {0.00f, 0.95f, EasingType::LINEAR}, {0.32f, 0.95f, EasingType::EASE_OUT_CUBIC},
+    {0.82f, 0.95f}, {1.00f, 0.95f, EasingType::EASE_IN_CUBIC}
 };
 
 // --- Happy hop keyframes (7 tracks) ---
@@ -270,38 +266,10 @@ static KeyFrame test_lx[] = {
     {1.00f, 0.0f, EasingType::EASE_IN_OUT_SINE}
 };
 
-// --- Softsquish keyframes (4 tracks) ---
-static KeyFrame ss_left_scale_y[] = {
-    {0.00f, 1.0f}, {0.15f, 0.7f, EasingType::EASE_OUT_CUBIC},
-    {0.45f, 0.75f}, {0.60f, 1.0f, EasingType::EASE_IN_CUBIC}
-};
-static KeyFrame ss_left_scale_x[] = {
-    {0.00f, 1.0f}, {0.15f, 1.20f, EasingType::EASE_OUT_CUBIC},
-    {0.45f, 1.15f}, {0.60f, 1.0f, EasingType::EASE_IN_CUBIC}
-};
-static KeyFrame ss_right_scale_y[] = {
-    {0.00f, 1.0f}, {0.18f, 0.72f, EasingType::EASE_OUT_CUBIC},
-    {0.48f, 0.77f}, {0.60f, 1.0f, EasingType::EASE_IN_CUBIC}
-};
-static KeyFrame ss_right_scale_x[] = {
-    {0.00f, 1.0f}, {0.18f, 1.22f, EasingType::EASE_OUT_CUBIC},
-    {0.48f, 1.17f}, {0.60f, 1.0f, EasingType::EASE_IN_CUBIC}
-};
-
 // --- Microtiltswap keyframes (1 track) ---
 static KeyFrame mts_tilt[] = {
     {0.00f, 0.0f}, {0.25f, 3.0f, EasingType::EASE_IN_OUT_SINE},
     {0.50f, 0.0f, EasingType::EASE_IN_OUT_SINE}
-};
-
-// --- Tinyfocusnarrow keyframes (2 tracks) ---
-static KeyFrame tfn_left_scale_y[] = {
-    {0.00f, 0.85f}, {0.20f, 0.75f, EasingType::EASE_OUT_CUBIC},
-    {0.80f, 0.85f, EasingType::EASE_IN_CUBIC}
-};
-static KeyFrame tfn_right_scale_y[] = {
-    {0.00f, 0.85f}, {0.22f, 0.77f, EasingType::EASE_OUT_CUBIC},
-    {0.82f, 0.85f, EasingType::EASE_IN_CUBIC}
 };
 
 // --- Sleepyrecover keyframes (3 tracks) ---
@@ -436,22 +404,22 @@ static KeyFrame ss_right_x[] = {
     {0.60f, 0.0f, EasingType::EASE_IN_OUT_SINE}
 };
 
-// --- SpeakingSquish keyframes (4 tracks) ---
-// Subtle vertical squash/stretch during speaking
-static KeyFrame speakingsq_left_scale_y[] = {
-    {0.00f, 1.0f}, {0.12f, 0.88f, EasingType::EASE_OUT_CUBIC},
+// --- SpeakingPulse keyframes (4 tracks) ---
+// Subtle widen pulse during speaking instead of squish
+static KeyFrame speakingp_left_scale_y[] = {
+    {0.00f, 1.0f}, {0.12f, 1.05f, EasingType::EASE_OUT_CUBIC},
     {0.25f, 1.0f, EasingType::EASE_IN_CUBIC}
 };
-static KeyFrame speakingsq_left_scale_x[] = {
-    {0.00f, 1.0f}, {0.12f, 1.08f, EasingType::EASE_OUT_CUBIC},
+static KeyFrame speakingp_left_scale_x[] = {
+    {0.00f, 1.0f}, {0.12f, 0.95f, EasingType::EASE_OUT_CUBIC},
     {0.25f, 1.0f, EasingType::EASE_IN_CUBIC}
 };
-static KeyFrame speakingsq_right_scale_y[] = {
-    {0.00f, 1.0f}, {0.14f, 0.90f, EasingType::EASE_OUT_CUBIC},
+static KeyFrame speakingp_right_scale_y[] = {
+    {0.00f, 1.0f}, {0.14f, 1.05f, EasingType::EASE_OUT_CUBIC},
     {0.25f, 1.0f, EasingType::EASE_IN_CUBIC}
 };
-static KeyFrame speakingsq_right_scale_x[] = {
-    {0.00f, 1.0f}, {0.14f, 1.06f, EasingType::EASE_OUT_CUBIC},
+static KeyFrame speakingp_right_scale_x[] = {
+    {0.00f, 1.0f}, {0.14f, 0.95f, EasingType::EASE_OUT_CUBIC},
     {0.25f, 1.0f, EasingType::EASE_IN_CUBIC}
 };
 
@@ -618,18 +586,8 @@ static void InitTimelines() {
     timeline_test_horizontal.AddTrack("left.center_x",  test_lx, 5);
     timeline_test_horizontal.AddTrack("right.center_x", test_rx, 5);
 
-    // Softsquish: 4 tracks
-    timeline_softsquish.AddTrack("left.scale_y", ss_left_scale_y, 4);
-    timeline_softsquish.AddTrack("left.scale_x", ss_left_scale_x, 4);
-    timeline_softsquish.AddTrack("right.scale_y", ss_right_scale_y, 4);
-    timeline_softsquish.AddTrack("right.scale_x", ss_right_scale_x, 4);
-
     // Microtiltswap: 1 track
     timeline_microtiltswap.AddTrack("face.face_tilt", mts_tilt, 3);
-
-    // Tinyfocusnarrow: 2 tracks
-    timeline_tinyfocusnarrow.AddTrack("left.scale_y", tfn_left_scale_y, 3);
-    timeline_tinyfocusnarrow.AddTrack("right.scale_y", tfn_right_scale_y, 3);
 
     // Sleepyrecover: 3 tracks
     timeline_sleepyrecover.AddTrack("left.top_cut", sr_left_top, 3);
@@ -668,11 +626,11 @@ static void InitTimelines() {
     timeline_speaking_shift.AddTrack("left.center_x", ss_left_x, 5);
     timeline_speaking_shift.AddTrack("right.center_x", ss_right_x, 5);
 
-    // SpeakingSquish: 4 tracks (one-shot)
-    timeline_speaking_squish.AddTrack("left.scale_y", speakingsq_left_scale_y, 3);
-    timeline_speaking_squish.AddTrack("left.scale_x", speakingsq_left_scale_x, 3);
-    timeline_speaking_squish.AddTrack("right.scale_y", speakingsq_right_scale_y, 3);
-    timeline_speaking_squish.AddTrack("right.scale_x", speakingsq_right_scale_x, 3);
+    // SpeakingPulse: 4 tracks (one-shot) - subtle widen pulse instead of squish
+    timeline_speaking_pulse.AddTrack("left.scale_y", speakingp_left_scale_y, 3);
+    timeline_speaking_pulse.AddTrack("left.scale_x", speakingp_left_scale_x, 3);
+    timeline_speaking_pulse.AddTrack("right.scale_y", speakingp_right_scale_y, 3);
+    timeline_speaking_pulse.AddTrack("right.scale_x", speakingp_right_scale_x, 3);
 
     // EmphasisBlink: 4 tracks (one-shot)
     timeline_emphasis_blink.AddTrack("left.top_cut", emp_blink_left_top, 3);
@@ -714,9 +672,7 @@ const Clip* AnimationLibrary::Get(const char* n) {
     if (!strcmp(n, "sleepidle")) { InitTimelines(); return &clip_sleepidle; }
     if (!strcmp(n, "test_horizontal")) { InitTimelines(); return &clip_test_horizontal; }
     // New clips
-    if (!strcmp(n, "softsquish")) { InitTimelines(); return &clip_softsquish; }
     if (!strcmp(n, "microtiltswap")) { InitTimelines(); return &clip_microtiltswap; }
-    if (!strcmp(n, "tinyfocusnarrow")) { InitTimelines(); return &clip_tinyfocusnarrow; }
     if (!strcmp(n, "sleepyrecover")) { InitTimelines(); return &clip_sleepyrecover; }
     if (!strcmp(n, "suspicious")) { InitTimelines(); return &clip_suspicious; }
     if (!strcmp(n, "curiouspeek")) { InitTimelines(); return &clip_curiouspeek; }
@@ -724,7 +680,7 @@ const Clip* AnimationLibrary::Get(const char* n) {
     if (!strcmp(n, "orbitsearch")) { InitTimelines(); return &clip_orbitsearch; }
     if (!strcmp(n, "sleeppeek")) { InitTimelines(); return &clip_sleeppeek; }
     if (!strcmp(n, "speaking_shift")) { InitTimelines(); return &clip_speaking_shift; }
-    if (!strcmp(n, "speaking_squish")) { InitTimelines(); return &clip_speaking_squish; }
+    if (!strcmp(n, "speaking_pulse")) { InitTimelines(); return &clip_speaking_pulse; }
     if (!strcmp(n, "emphasis_blink")) { InitTimelines(); return &clip_emphasis_blink; }
     if (!strcmp(n, "lookaway")) { InitTimelines(); return &clip_lookaway; }
     if (!strcmp(n, "wander")) { InitTimelines(); return &clip_wander; }
@@ -746,10 +702,9 @@ const Clip* AnimationLibrary::SlowBlink()  { InitTimelines(); return &clip_slowb
 const Clip* AnimationLibrary::DoubleBlink() { InitTimelines(); return &clip_doubleblink; }
 const Clip* AnimationLibrary::SleepIdle()  { InitTimelines(); return &clip_sleepidle; }
 const Clip* AnimationLibrary::TestHorizontal() { InitTimelines(); return &clip_test_horizontal; }
-const Clip* AnimationLibrary::TinyFocusNarrow() { InitTimelines(); return &clip_tinyfocusnarrow; }
 const Clip* AnimationLibrary::BootCloseFirst() { Init(); return &clip_bootclose; }
 const Clip* AnimationLibrary::SpeakingShift() { InitTimelines(); return &clip_speaking_shift; }
-const Clip* AnimationLibrary::SpeakingSquish() { InitTimelines(); return &clip_speaking_squish; }
+const Clip* AnimationLibrary::SpeakingPulse() { InitTimelines(); return &clip_speaking_pulse; }
 const Clip* AnimationLibrary::EmphasisBlink() { InitTimelines(); return &clip_emphasis_blink; }
 const Clip* AnimationLibrary::Lookaway() { InitTimelines(); return &clip_lookaway; }
 const Clip* AnimationLibrary::Wander() { InitTimelines(); return &clip_wander; }

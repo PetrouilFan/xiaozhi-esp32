@@ -235,7 +235,6 @@ void ProceduralDisplay::SetFaceState(int phase_int) {
     scheduler_.Stop("orbitsearch");
     scheduler_.Stop("speaking_shift");
     scheduler_.Stop("wander");
-    scheduler_.Stop("softsquish");
 
     // Reset behavior cooldowns on phase transition to prevent explosion
     scheduler_.ResetCooldowns();
@@ -253,8 +252,8 @@ void ProceduralDisplay::SetFaceState(int phase_int) {
         PlayClip(AnimationLibrary::Wander());
         break;
     case FacePhase::LISTENING:
-        new_base.left = EyeShape::PresetFocused();
-        new_base.right = EyeShape::PresetFocused();
+        new_base.left = EyeShape::PresetNeutral();
+        new_base.right = EyeShape::PresetNeutral();
         PlayClip(AnimationLibrary::Breathing());
         PlayClip(AnimationLibrary::Wander());
         break;
