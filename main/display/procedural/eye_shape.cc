@@ -63,7 +63,7 @@ Rect EyeShape::GetBounds(const Polygon& poly) {
     return { mx, my, int16_t(Mx-mx+1), int16_t(My-my+1) };
 }
 
-EyeParameters EyeShape::PresetNeutral()  { EyeParameters e; e.scale_x=0.95f; e.scale_y=0.85f; e.roundness=0.7f; e.top_cut=0.1f; e.bottom_cut=0.05f; e.brightness=1.0f; return e; }
+EyeParameters EyeShape::PresetNeutral() { EyeParameters e; e.scale_x=0.90f; e.scale_y=1.00f; e.roundness=0.7f; e.top_cut=0.0f; e.bottom_cut=0.0f; e.brightness=1.0f; return e; }
 EyeParameters EyeShape::PresetBlinkClosed() { EyeParameters e; e.scale_x=0.95f; e.scale_y=0.85f; e.top_cut=0.55f; e.bottom_cut=0.5f; e.brightness=0.3f; return e; }
 EyeParameters EyeShape::PresetHappy()  { EyeParameters e; e.scale_x=1.0f; e.scale_y=0.55f; e.inner_corner_raise=0.25f; e.outer_corner_raise=0.35f; e.top_cut=0.5f; e.bottom_cut=0.0f; e.roundness=0.8f; return e; }
 EyeParameters EyeShape::PresetAngry()  { EyeParameters e; e.scale_x=0.8f; e.scale_y=0.7f; e.inner_corner_raise=-0.4f; e.outer_corner_raise=0.2f; e.rotation_deg=-6.0f; e.top_cut=0.0f; e.bottom_cut=0.3f; e.roundness=0.3f; return e; }

@@ -32,6 +32,7 @@ ProceduralDisplay::ProceduralDisplay(esp_lcd_panel_io_handle_t panel_io,
     ESP_LOGI(TAG, "ProceduralDisplay constructed %dx%d", width, height);
 
     EyeParameters neutral = EyeShape::PresetNeutral();
+    neutral.visible = true;
     current_face_.left = neutral;
     current_face_.right = neutral;
     scheduler_.SetBaseState(current_face_);
@@ -78,6 +79,11 @@ void ProceduralDisplay::SetupUI() {
     left_draw_.color = lv_color_make(0, 220, 220);
     right_draw_.color = lv_color_make(0, 220, 220);
 
+    // Phase 2 fix: Hide eyes initially to prevent half-open first frame
+    // They will be unhidden when bootclose clip runs (starts from closed)
+    lv_obj_add_flag(left_eye_, LV_OBJ_FLAG_HIDDEN);
+    lv_obj_add_flag(right_eye_, LV_OBJ_FLAG_HIDDEN);
+
     status_label_ = lv_label_create(screen);
     lv_obj_set_width(status_label_, width_);
     lv_obj_set_style_text_align(status_label_, LV_TEXT_ALIGN_CENTER, 0);
@@ -96,7 +102,7 @@ void ProceduralDisplay::SetupUI() {
 
     UpdateFaceGeometry();
     StartAnimTimer();
-    PlayClip(AnimationLibrary::BootOpen());
+    PlayClip(AnimationLibrary::BootCloseFirst());
     lv_obj_invalidate(lv_screen_active());
 
     ESP_LOGI(TAG, "SetupUI complete");
@@ -217,6 +223,7 @@ void ProceduralDisplay::SetFaceState(int phase_int) {
     FacePhase phase = static_cast<FacePhase>(phase_int);
     DisplayLockGuard lock(this);
     current_phase_ = phase;
+    PROCEDURAL_DEBUG("SetFaceState: %d", phase_int);
 
     FaceState new_base = scheduler_.base();
 
@@ -225,12 +232,17 @@ void ProceduralDisplay::SetFaceState(int phase_int) {
     scheduler_.Stop("micro_tilt");
     scheduler_.Stop("sleepidle");
     scheduler_.Stop("microtiltswap");
-    scheduler_.Stop("tinyfocusnarrow");
     scheduler_.Stop("orbitsearch");
+    scheduler_.Stop("speaking_shift");
+    scheduler_.Stop("wander");
+    scheduler_.Stop("softsquish");
+
+    // Reset behavior cooldowns on phase transition to prevent explosion
+    scheduler_.ResetCooldowns();
 
     switch (phase) {
     case FacePhase::BOOTING:
-        PlayClip(AnimationLibrary::BootOpen());
+        PlayClip(AnimationLibrary::BootCloseFirst());
         break;
     case FacePhase::IDLE:
         new_base.left = EyeShape::PresetNeutral();
@@ -238,13 +250,13 @@ void ProceduralDisplay::SetFaceState(int phase_int) {
         // Always restart ambient loops for IDLE
         PlayClip(AnimationLibrary::Breathing());
         PlayClip(AnimationLibrary::MicroTilt());
+        PlayClip(AnimationLibrary::Wander());
         break;
     case FacePhase::LISTENING:
         new_base.left = EyeShape::PresetFocused();
         new_base.right = EyeShape::PresetFocused();
-        // Listening-specific ambient: slower breathing, focus narrowing
         PlayClip(AnimationLibrary::Breathing());
-        PlayClip(AnimationLibrary::TinyFocusNarrow());
+        PlayClip(AnimationLibrary::Wander());
         break;
     case FacePhase::THINKING:
         new_base.left = EyeShape::PresetNeutral();
@@ -256,8 +268,8 @@ void ProceduralDisplay::SetFaceState(int phase_int) {
     case FacePhase::SPEAKING:
         new_base.left = EyeShape::PresetNeutral();
         new_base.right = EyeShape::PresetNeutral();
-        // Speaking: subtle micro-movements to show "alive"
-        PlayClip(AnimationLibrary::MicroTilt());
+        // Speaking: active but controlled motion with micro-saccades and breathing
+        PlayClip(AnimationLibrary::SpeakingShift());
         PlayClip(AnimationLibrary::Breathing());
         break;
     case FacePhase::SLEEPING:
@@ -309,7 +321,18 @@ void ProceduralDisplay::SetFaceState(int phase_int) {
 }
 
 void ProceduralDisplay::PlayClip(const Clip* clip) {
-    if (clip) scheduler_.Play(clip);
+    if (clip) {
+        PROCEDURAL_DEBUG("PlayClip: %s", clip->name);
+        scheduler_.Play(clip);
+    }
+}
+
+void ProceduralDisplay::OnSpeechSentenceStart() {
+    DisplayLockGuard lock(this);
+    PROCEDURAL_DEBUG("sentence_start event");
+    if (current_phase_ == FacePhase::SPEAKING) {
+        PlayClip(AnimationLibrary::EmphasisBlink());
+    }
 }
 
 void ProceduralDisplay::StartAnimTimer() {
@@ -333,7 +356,7 @@ void ProceduralDisplay::UpdateFromScheduler() {
     DisplayLockGuard lock(this);
     uint32_t now_ms = lv_tick_get();
 
-    if (current_phase_ == FacePhase::BOOTING && !scheduler_.IsPlaying("boot_open")) {
+    if (current_phase_ == FacePhase::BOOTING && !scheduler_.IsPlaying("bootclose")) {
         SetFaceState(static_cast<int>(FacePhase::IDLE));
     }
 
@@ -341,7 +364,17 @@ void ProceduralDisplay::UpdateFromScheduler() {
     current_face_ = scheduler_.Update(now_sec, current_phase_);
 
     static uint32_t last_autonomous_ms = 0;
-    if (now_ms - last_autonomous_ms > 1500 + (esp_random() % 2500)) {
+    uint32_t min_interval = 1500;
+    uint32_t random_max = 1500;
+    switch (current_phase_) {
+        case FacePhase::IDLE:         min_interval = 1500; random_max = 1500; break;
+        case FacePhase::LISTENING:   min_interval = 2000; random_max = 2000; break;
+        case FacePhase::THINKING:    min_interval = 1500; random_max = 1000; break;
+        case FacePhase::SPEAKING:     min_interval = 1000; random_max = 1000; break;
+        case FacePhase::SLEEPING:   min_interval = 3000; random_max = 2000; break;
+        default:                    min_interval = 1500; random_max = 1500; break;
+    }
+    if (now_ms - last_autonomous_ms > min_interval + (esp_random() % random_max)) {
         if (scheduler_.TryPlayAutonomous(current_phase_, now_ms)) {
             PROCEDURAL_DEBUG("autonomous behavior");
             last_autonomous_ms = now_ms;

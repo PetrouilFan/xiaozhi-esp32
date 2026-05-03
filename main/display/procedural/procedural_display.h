@@ -32,6 +32,7 @@ public:
 
     void SetFaceState(int phase);
     void PlayClip(const Clip* clip);
+    void OnSpeechSentenceStart() override;
 
     struct EyeDrawData {
         lv_point_precise_t points[16];

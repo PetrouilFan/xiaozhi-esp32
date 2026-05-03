@@ -75,6 +75,14 @@ FaceState Scheduler::Update(float t, FacePhase current_phase) {
             s.left.top_cut = s.right.top_cut = open*0.5f;
             s.left.bottom_cut = s.right.bottom_cut = open*0.4f;
             s.left.brightness = s.right.brightness = 0.3f + p*0.7f;
+        } else if (!strcmp(n, "bootclose")) {
+            float open = p*p*(3.0f-2.0f*p);
+            float cut = 0.75f*(1.0f-open) + 0.10f*open;
+            s.left.top_cut = s.left.bottom_cut = cut;
+            s.right.top_cut = s.right.bottom_cut = cut;
+            s.left.brightness = s.right.brightness = 0.3f + 0.7f*open;
+            // Unhide eyes as they start opening
+            s.left.visible = s.right.visible = true;
         } else if (a.clip->timeline) {
             a.clip->timeline->ApplyToState(s, a.local);
         }
@@ -97,24 +105,30 @@ void Scheduler::Remove(uint8_t idx) {
 namespace {
 
 static const BehaviorEntry behavior_pool[] = {
-    // Common tier (high frequency, idle-safe)
-    {"breathing", nullptr, BehaviorTier::COMMON, 0x01, 3000, 10},      // IDLE only, 3s cooldown
-    {"micro_tilt", nullptr, BehaviorTier::COMMON, 0x01, 2000, 8},
-    {"microtiltswap", nullptr, BehaviorTier::COMMON, 0x01, 2500, 6},
-    {"tinyfocusnarrow", nullptr, BehaviorTier::COMMON, 0x03, 4000, 5},   // IDLE|LISTENING
+// Common tier (high frequency, ambient)
+// Phase masks: IDLE=0x0002, LISTENING=0x0004, THINKING=0x0008, SPEAKING=0x0010, SLEEPING=0x0020
+{"breathing", nullptr, BehaviorTier::COMMON, 0x000E, 2000, 8}, // IDLE|LISTENING|THINKING
+{"micro_tilt", nullptr, BehaviorTier::COMMON, 0x000A, 2500, 7}, // IDLE|THINKING
+{"microtiltswap", nullptr, BehaviorTier::COMMON, 0x0002, 3000, 5}, // IDLE
+{"blink", nullptr, BehaviorTier::COMMON, 0x000E, 3000, 10}, // IDLE|LISTENING|THINKING
+{"doubleblink", nullptr, BehaviorTier::COMMON, 0x0006, 6000, 4}, // IDLE|LISTENING
+{"wander", nullptr, BehaviorTier::COMMON, 0x0006, 5000, 6}, // IDLE|LISTENING
 
-    // Occasional tier (medium frequency)
-    {"softsquish", nullptr, BehaviorTier::OCCASIONAL, 0x01, 5000, 6},
-    {"sleepyrecover", nullptr, BehaviorTier::OCCASIONAL, 0x01, 6000, 4},
-    {"slowblink", nullptr, BehaviorTier::OCCASIONAL, 0x03, 3500, 8},
-    {"doubleblink", nullptr, BehaviorTier::OCCASIONAL, 0x03, 3500, 5},
+// Occasional tier (medium frequency)
+{"slowblink", nullptr, BehaviorTier::OCCASIONAL, 0x0006, 5000, 5}, // IDLE|LISTENING
+{"sleepyrecover", nullptr, BehaviorTier::OCCASIONAL, 0x0002, 8000, 3}, // IDLE
 
-    // Rare tier (low frequency, expressive)
-    {"suspicious", nullptr, BehaviorTier::RARE, 0x01, 8000, 3},
-    {"curiouspeek", nullptr, BehaviorTier::RARE, 0x01, 10000, 2},
-    {"yawn", nullptr, BehaviorTier::RARE, 0x10, 15000, 2},   // SLEEPING only
-    {"orbitsearch", nullptr, BehaviorTier::RARE, 0x01, 7000, 3},
-    {"sleeppeek", nullptr, BehaviorTier::RARE, 0x10, 8000, 2},   // SLEEPING only
+// Rare tier (low frequency, expressive)
+{"suspicious", nullptr, BehaviorTier::RARE, 0x0006, 8000, 3}, // IDLE|LISTENING
+{"curiouspeek", nullptr, BehaviorTier::RARE, 0x0006, 10000, 2}, // IDLE|LISTENING
+{"orbitsearch", nullptr, BehaviorTier::RARE, 0x0006, 7000, 3}, // IDLE|LISTENING
+{"lookaway", nullptr, BehaviorTier::RARE, 0x000E, 6000, 3}, // IDLE|LISTENING|THINKING
+{"yawn", nullptr, BehaviorTier::RARE, 0x0020, 15000, 2}, // SLEEPING only
+{"sleeppeek", nullptr, BehaviorTier::RARE, 0x0020, 8000, 2}, // SLEEPING only
+
+// Speaking tier (active during speech)
+{"speaking_squish", nullptr, BehaviorTier::OCCASIONAL, 0x0010, 2000, 4}, // SPEAKING only
+{"emphasis_blink", nullptr, BehaviorTier::OCCASIONAL, 0x0010, 3500, 3}, // SPEAKING only
 };
 
 static constexpr uint8_t kBehaviorCount = sizeof(behavior_pool) / sizeof(behavior_pool[0]);
@@ -122,12 +136,24 @@ static constexpr uint8_t kBehaviorCount = sizeof(behavior_pool) / sizeof(behavio
 } // anonymous namespace
 
 bool Scheduler::TryPlayAutonomous(FacePhase phase, uint32_t now_ms) {
+    // Phase-specific cooldown multipliers: speaking gets highest frequency
+    uint16_t phase_multiplier = 1000;
+    switch (phase) {
+        case FacePhase::IDLE: phase_multiplier = 1000; break;       // baseline
+        case FacePhase::LISTENING: phase_multiplier = 1500; break;  // less frequent - focus listening
+        case FacePhase::THINKING: phase_multiplier = 1200; break;  // moderate - thinking
+        case FacePhase::SPEAKING: phase_multiplier = 500; break;   // highest - active during speech
+        case FacePhase::SLEEPING: phase_multiplier = 2000; break; // very low - sleeping
+        default: phase_multiplier = 1000; break;
+    }
+
     uint8_t tier_weights_common = 0, tier_weights_occasion = 0, tier_weights_rare = 0;
 
     for (uint8_t i = 0; i < kBehaviorCount; ++i) {
         const BehaviorEntry& b = behavior_pool[i];
         if (!(b.min_phase_mask & (1 << static_cast<uint8_t>(phase)))) continue;
-        if (now_ms - last_behavior_ms_[i] < b.cooldown_ms) continue;
+        uint32_t effective_cooldown = (b.cooldown_ms * phase_multiplier) / 1000;
+        if (now_ms - last_behavior_ms_[i] < effective_cooldown) continue;
         if (b.tier == BehaviorTier::COMMON) tier_weights_common += b.weight;
         else if (b.tier == BehaviorTier::OCCASIONAL) tier_weights_occasion += b.weight;
         else tier_weights_rare += b.weight;

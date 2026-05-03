@@ -51,6 +51,11 @@ public:
         // Default no-op for non-procedural displays
     }
 
+    // TTS sentence_start hook - trigger emphasis behavior on sentence boundaries
+    virtual void OnSpeechSentenceStart() {
+        // Default no-op
+    }
+
     inline int width() const { return width_; }
     inline int height() const { return height_; }
     inline bool IsSetupUICalled() const { return setup_ui_called_; }

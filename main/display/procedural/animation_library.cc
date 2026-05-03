@@ -11,6 +11,7 @@ namespace procedural {
 // Keyframe storage
 static KeyFrame blink_kf[8];
 static KeyFrame boot_kf[4];
+static KeyFrame boot_close_kf[4];
 static KeyFrame happy_kf[8];
 static KeyFrame sad_kf[8];
 static KeyFrame surprised_kf[4];
@@ -21,6 +22,7 @@ static KeyFrame wake_kf[6];
 // Simple clip objects (no timeline)
 static Clip clip_blink     = {"blink",    0.25f, 5, false, true,  blink_kf,    2, 3, nullptr};
 static Clip clip_boot      = {"boot_open",0.8f, 10, false, false, boot_kf,    2, 2, nullptr};
+static Clip clip_bootclose = {"bootclose", 0.8f, 8, false, false, boot_close_kf, 2, 2, nullptr};
 static Clip clip_happy     = {"happy",   0.5f, 3, false, true,  happy_kf,    2, 3, nullptr};
 static Clip clip_sad       = {"sad",     0.6f, 3, false, true,  sad_kf,      2, 3, nullptr};
 static Clip clip_surprised = {"surprised",0.4f, 3, false, true,  surprised_kf,2, 2, nullptr};
@@ -49,6 +51,11 @@ static Timeline timeline_curiouspeek;
 static Timeline timeline_yawn;
 static Timeline timeline_orbitsearch;
 static Timeline timeline_sleeppeek;
+static Timeline timeline_speaking_shift;
+static Timeline timeline_speaking_squish;
+static Timeline timeline_emphasis_blink;
+static Timeline timeline_lookaway;
+static Timeline timeline_wander;
 
 // New timeline-based clips
 static Clip clip_softsquish     = {"softsquish", 0.6f, 3, false, true, nullptr, 0, 0, &timeline_softsquish};
@@ -60,6 +67,11 @@ static Clip clip_curiouspeek = {"curiouspeek", 1.5f, 4, false, true, nullptr, 0,
 static Clip clip_yawn         = {"yawn", 2.0f, 3, false, true, nullptr, 0, 0, &timeline_yawn};
 static Clip clip_orbitsearch = {"orbitsearch", 2.5f, 3, true, true, nullptr, 0, 0, &timeline_orbitsearch};
 static Clip clip_sleeppeek    = {"sleeppeek", 1.0f, 3, false, true, nullptr, 0, 0, &timeline_sleeppeek};
+static Clip clip_speaking_shift = {"speaking_shift", 0.6f, 3, true, true, nullptr, 0, 0, &timeline_speaking_shift};
+static Clip clip_speaking_squish = {"speaking_squish", 0.25f, 2, false, false, nullptr, 0, 0, &timeline_speaking_squish};
+static Clip clip_emphasis_blink = {"emphasis_blink", 0.3f, 4, false, false, nullptr, 0, 0, &timeline_emphasis_blink};
+static Clip clip_lookaway = {"lookaway", 1.2f, 3, false, true, nullptr, 0, 0, &timeline_lookaway};
+static Clip clip_wander = {"wander", 3.0f, 2, true, true, nullptr, 0, 0, &timeline_wander};
 
 // --- Angry clip keyframes (16 tracks) ---
 static KeyFrame angry_left_inner_corner_raise[] = {
@@ -260,20 +272,20 @@ static KeyFrame test_lx[] = {
 
 // --- Softsquish keyframes (4 tracks) ---
 static KeyFrame ss_left_scale_y[] = {
-    {0.00f, 1.0f}, {0.15f, 0.8f, EasingType::EASE_OUT_CUBIC},
-    {0.45f, 0.85f}, {0.60f, 1.0f, EasingType::EASE_IN_CUBIC}
+    {0.00f, 1.0f}, {0.15f, 0.7f, EasingType::EASE_OUT_CUBIC},
+    {0.45f, 0.75f}, {0.60f, 1.0f, EasingType::EASE_IN_CUBIC}
 };
 static KeyFrame ss_left_scale_x[] = {
-    {0.00f, 1.0f}, {0.15f, 1.15f, EasingType::EASE_OUT_CUBIC},
-    {0.45f, 1.1f}, {0.60f, 1.0f, EasingType::EASE_IN_CUBIC}
+    {0.00f, 1.0f}, {0.15f, 1.20f, EasingType::EASE_OUT_CUBIC},
+    {0.45f, 1.15f}, {0.60f, 1.0f, EasingType::EASE_IN_CUBIC}
 };
 static KeyFrame ss_right_scale_y[] = {
-    {0.00f, 1.0f}, {0.18f, 0.82f, EasingType::EASE_OUT_CUBIC},
-    {0.48f, 0.87f}, {0.60f, 1.0f, EasingType::EASE_IN_CUBIC}
+    {0.00f, 1.0f}, {0.18f, 0.72f, EasingType::EASE_OUT_CUBIC},
+    {0.48f, 0.77f}, {0.60f, 1.0f, EasingType::EASE_IN_CUBIC}
 };
 static KeyFrame ss_right_scale_x[] = {
-    {0.00f, 1.0f}, {0.18f, 1.18f, EasingType::EASE_OUT_CUBIC},
-    {0.48f, 1.12f}, {0.60f, 1.0f, EasingType::EASE_IN_CUBIC}
+    {0.00f, 1.0f}, {0.18f, 1.22f, EasingType::EASE_OUT_CUBIC},
+    {0.48f, 1.17f}, {0.60f, 1.0f, EasingType::EASE_IN_CUBIC}
 };
 
 // --- Microtiltswap keyframes (1 track) ---
@@ -316,12 +328,12 @@ static KeyFrame sus_right_center_x[] = {
     {0.93f, 0.15f}, {1.20f, 0.0f, EasingType::EASE_IN_CUBIC}
 };
 static KeyFrame sus_left_scale_y[] = {
-    {0.00f, 0.85f}, {0.30f, 0.75f, EasingType::EASE_OUT_CUBIC},
-    {0.90f, 0.78f}, {1.20f, 0.85f, EasingType::EASE_IN_CUBIC}
+    {0.00f, 1.0f}, {0.30f, 0.88f, EasingType::EASE_OUT_CUBIC},
+    {0.90f, 0.90f}, {1.20f, 1.0f, EasingType::EASE_IN_CUBIC}
 };
 static KeyFrame sus_right_scale_y[] = {
-    {0.00f, 0.85f}, {0.33f, 0.78f, EasingType::EASE_OUT_CUBIC},
-    {0.93f, 0.8f}, {1.20f, 0.85f, EasingType::EASE_IN_CUBIC}
+    {0.00f, 1.0f}, {0.33f, 0.90f, EasingType::EASE_OUT_CUBIC},
+    {0.93f, 0.92f}, {1.20f, 1.0f, EasingType::EASE_IN_CUBIC}
 };
 
 // --- Curiouspeek keyframes (5 tracks) ---
@@ -334,12 +346,12 @@ static KeyFrame cp_right_center_x[] = {
     {0.72f, 0.3f}, {1.0f, 0.0f}, {1.50f, 0.0f}
 };
 static KeyFrame cp_left_scale[] = {
-    {0.00f, 1.0f}, {0.20f, 0.9f, EasingType::EASE_OUT_CUBIC},
-    {0.70f, 0.92f}, {1.0f, 1.0f}, {1.50f, 1.0f}
+    {0.00f, 1.0f}, {0.20f, 1.0f, EasingType::EASE_OUT_CUBIC},
+    {0.70f, 1.0f}, {1.0f, 1.0f}, {1.50f, 1.0f}
 };
 static KeyFrame cp_right_scale[] = {
-    {0.00f, 1.0f}, {0.22f, 0.92f, EasingType::EASE_OUT_CUBIC},
-    {0.72f, 0.95f}, {1.0f, 1.0f}, {1.50f, 1.0f}
+    {0.00f, 1.0f}, {0.22f, 1.0f, EasingType::EASE_OUT_CUBIC},
+    {0.72f, 1.0f}, {1.0f, 1.0f}, {1.50f, 1.0f}
 };
 static KeyFrame cp_face_offset_x[] = {
     {0.00f, 0.0f}, {0.50f, -0.15f, EasingType::EASE_OUT_CUBIC},
@@ -395,6 +407,111 @@ static KeyFrame sp_left_top[] = {
     {0.00f, 0.35f}, {0.25f, 0.25f, EasingType::EASE_OUT_CUBIC},
     {0.75f, 0.28f}, {1.00f, 0.35f, EasingType::EASE_IN_CUBIC}
 };
+
+// --- BootCloseFirst keyframes (2 tracks) ---
+// CLOSED -> OPEN: starts at nearly closed (top=0.75, bottom=0.7), opens to fully open (0.02)
+static KeyFrame boot_close_left_top[] = {
+    {0.00f, 0.75f, EasingType::EASE_OUT_CUBIC},
+    {0.60f, 0.02f, EasingType::EASE_OUT_BOUNCE},
+    {1.00f, 0.02f, EasingType::EASE_IN_CUBIC}
+};
+static KeyFrame boot_close_left_bottom[] = {
+    {0.00f, 0.70f, EasingType::EASE_OUT_CUBIC},
+    {0.60f, 0.00f, EasingType::EASE_OUT_BOUNCE},
+    {1.00f, 0.00f, EasingType::EASE_IN_CUBIC}
+};
+
+// --- SpeakingShift keyframes (2 tracks) ---
+// Active but controlled: subtle horizontal micro-saccades every ~600ms
+static KeyFrame ss_left_x[] = {
+    {0.00f, 0.0f}, {0.15f, 0.15f, EasingType::EASE_IN_OUT_SINE},
+    {0.30f, 0.0f, EasingType::EASE_IN_OUT_SINE},
+    {0.45f, -0.10f, EasingType::EASE_IN_OUT_SINE},
+    {0.60f, 0.0f, EasingType::EASE_IN_OUT_SINE}
+};
+static KeyFrame ss_right_x[] = {
+    {0.00f, 0.0f}, {0.15f, 0.12f, EasingType::EASE_IN_OUT_SINE},
+    {0.30f, 0.0f, EasingType::EASE_IN_OUT_SINE},
+    {0.45f, -0.08f, EasingType::EASE_IN_OUT_SINE},
+    {0.60f, 0.0f, EasingType::EASE_IN_OUT_SINE}
+};
+
+// --- SpeakingSquish keyframes (4 tracks) ---
+// Subtle vertical squash/stretch during speaking
+static KeyFrame speakingsq_left_scale_y[] = {
+    {0.00f, 1.0f}, {0.12f, 0.88f, EasingType::EASE_OUT_CUBIC},
+    {0.25f, 1.0f, EasingType::EASE_IN_CUBIC}
+};
+static KeyFrame speakingsq_left_scale_x[] = {
+    {0.00f, 1.0f}, {0.12f, 1.08f, EasingType::EASE_OUT_CUBIC},
+    {0.25f, 1.0f, EasingType::EASE_IN_CUBIC}
+};
+static KeyFrame speakingsq_right_scale_y[] = {
+    {0.00f, 1.0f}, {0.14f, 0.90f, EasingType::EASE_OUT_CUBIC},
+    {0.25f, 1.0f, EasingType::EASE_IN_CUBIC}
+};
+static KeyFrame speakingsq_right_scale_x[] = {
+    {0.00f, 1.0f}, {0.14f, 1.06f, EasingType::EASE_OUT_CUBIC},
+    {0.25f, 1.0f, EasingType::EASE_IN_CUBIC}
+};
+
+// --- EmphasisBlink keyframes (4 tracks) ---
+// Slightly slower, more deliberate blink at sentence boundaries
+static KeyFrame emp_blink_left_top[] = {
+    {0.00f, 0.0f, EasingType::LINEAR}, {0.15f, 0.5f, EasingType::EASE_IN_QUAD},
+    {0.30f, 0.0f, EasingType::EASE_OUT_QUAD}
+};
+static KeyFrame emp_blink_left_bottom[] = {
+    {0.00f, 0.0f, EasingType::LINEAR}, {0.15f, 0.5f, EasingType::EASE_IN_QUAD},
+    {0.30f, 0.0f, EasingType::EASE_OUT_QUAD}
+};
+static KeyFrame emp_blink_right_top[] = {
+    {0.00f, 0.0f, EasingType::LINEAR}, {0.15f, 0.5f, EasingType::EASE_IN_QUAD},
+    {0.30f, 0.0f, EasingType::EASE_OUT_QUAD}
+};
+static KeyFrame emp_blink_right_bottom[] = {
+    {0.00f, 0.0f, EasingType::LINEAR}, {0.15f, 0.5f, EasingType::EASE_IN_QUAD},
+    {0.30f, 0.0f, EasingType::EASE_OUT_QUAD}
+};
+
+// --- Lookaway keyframes (2 tracks) ---
+// Brief sideways glance then return - adds personality
+static KeyFrame la_left_x[] = {
+    {0.00f, 0.0f}, {0.30f, 0.35f, EasingType::EASE_OUT_CUBIC},
+    {0.70f, 0.35f}, {1.00f, 0.0f, EasingType::EASE_IN_CUBIC}
+};
+static KeyFrame la_right_x[] = {
+    {0.00f, 0.0f}, {0.33f, 0.40f, EasingType::EASE_OUT_CUBIC},
+    {0.73f, 0.40f}, {1.00f, 0.0f, EasingType::EASE_IN_CUBIC}
+};
+
+// --- Wander keyframes (4 tracks) ---
+// Very subtle constant motion - lazy figure-8 eye drift
+static KeyFrame wander_left_x[] = {
+    {0.00f, 0.0f}, {0.75f, 0.08f, EasingType::EASE_IN_OUT_SINE},
+    {1.50f, -0.05f, EasingType::EASE_IN_OUT_SINE},
+    {2.25f, 0.03f, EasingType::EASE_IN_OUT_SINE},
+    {3.00f, 0.0f, EasingType::EASE_IN_OUT_SINE}
+};
+static KeyFrame wander_right_x[] = {
+    {0.00f, 0.0f}, {0.77f, 0.06f, EasingType::EASE_IN_OUT_SINE},
+    {1.52f, -0.04f, EasingType::EASE_IN_OUT_SINE},
+    {2.27f, 0.05f, EasingType::EASE_IN_OUT_SINE},
+    {3.00f, 0.0f, EasingType::EASE_IN_OUT_SINE}
+};
+static KeyFrame wander_left_y[] = {
+    {0.00f, 0.0f}, {0.50f, 0.04f, EasingType::EASE_IN_OUT_SINE},
+    {1.50f, -0.03f, EasingType::EASE_IN_OUT_SINE},
+    {2.50f, 0.02f, EasingType::EASE_IN_OUT_SINE},
+    {3.00f, 0.0f, EasingType::EASE_IN_OUT_SINE}
+};
+static KeyFrame wander_right_y[] = {
+    {0.00f, 0.0f}, {0.53f, 0.03f, EasingType::EASE_IN_OUT_SINE},
+    {1.53f, -0.02f, EasingType::EASE_IN_OUT_SINE},
+    {2.53f, 0.02f, EasingType::EASE_IN_OUT_SINE},
+    {3.00f, 0.0f, EasingType::EASE_IN_OUT_SINE}
+};
+
 static KeyFrame test_rx[] = {
     {0.00f, 0.0f, EasingType::LINEAR},
     {0.25f, -1.0f, EasingType::EASE_OUT_CUBIC},
@@ -434,6 +551,8 @@ static void Init() {
     sleep_kf[3]={0.0f,0.0f,EasingType::LINEAR}; sleep_kf[4]={0.5f,0.5f,EasingType::EASE_IN_QUAD}; sleep_kf[5]={1.0f,0.5f,EasingType::LINEAR};
     wake_kf[0]={0.0f,0.5f,EasingType::LINEAR}; wake_kf[1]={0.5f,0.0f,EasingType::EASE_OUT_QUAD}; wake_kf[2]={0.8f,0.0f,EasingType::LINEAR};
     wake_kf[3]={0.0f,0.5f,EasingType::LINEAR}; wake_kf[4]={0.5f,0.0f,EasingType::EASE_OUT_QUAD}; wake_kf[5]={0.8f,0.0f,EasingType::LINEAR};
+    boot_close_kf[0]={0.0f,0.75f,EasingType::EASE_OUT_CUBIC}; boot_close_kf[1]={0.6f,0.02f,EasingType::EASE_OUT_BOUNCE};
+    boot_close_kf[2]={0.0f,0.70f,EasingType::EASE_OUT_CUBIC}; boot_close_kf[3]={0.6f,0.00f,EasingType::EASE_OUT_BOUNCE};
 }
 
 static void InitTimelines() {
@@ -544,6 +663,32 @@ static void InitTimelines() {
     timeline_sleeppeek.AddTrack("left.center_y", sp_left_center_y, 4);
     timeline_sleeppeek.AddTrack("right.center_y", sp_right_center_y, 4);
     timeline_sleeppeek.AddTrack("left.top_cut", sp_left_top, 4);
+
+    // SpeakingShift: 2 tracks (looping)
+    timeline_speaking_shift.AddTrack("left.center_x", ss_left_x, 5);
+    timeline_speaking_shift.AddTrack("right.center_x", ss_right_x, 5);
+
+    // SpeakingSquish: 4 tracks (one-shot)
+    timeline_speaking_squish.AddTrack("left.scale_y", speakingsq_left_scale_y, 3);
+    timeline_speaking_squish.AddTrack("left.scale_x", speakingsq_left_scale_x, 3);
+    timeline_speaking_squish.AddTrack("right.scale_y", speakingsq_right_scale_y, 3);
+    timeline_speaking_squish.AddTrack("right.scale_x", speakingsq_right_scale_x, 3);
+
+    // EmphasisBlink: 4 tracks (one-shot)
+    timeline_emphasis_blink.AddTrack("left.top_cut", emp_blink_left_top, 3);
+    timeline_emphasis_blink.AddTrack("left.bottom_cut", emp_blink_left_bottom, 3);
+    timeline_emphasis_blink.AddTrack("right.top_cut", emp_blink_right_top, 3);
+    timeline_emphasis_blink.AddTrack("right.bottom_cut", emp_blink_right_bottom, 3);
+
+    // Lookaway: 2 tracks (one-shot)
+    timeline_lookaway.AddTrack("left.center_x", la_left_x, 4);
+    timeline_lookaway.AddTrack("right.center_x", la_right_x, 4);
+
+    // Wander: 4 tracks (looping)
+    timeline_wander.AddTrack("left.center_x", wander_left_x, 5);
+    timeline_wander.AddTrack("right.center_x", wander_right_x, 5);
+    timeline_wander.AddTrack("left.center_y", wander_left_y, 5);
+    timeline_wander.AddTrack("right.center_y", wander_right_y, 5);
 }
 
 // ==================== Public API ====================
@@ -578,6 +723,12 @@ const Clip* AnimationLibrary::Get(const char* n) {
     if (!strcmp(n, "yawn")) { InitTimelines(); return &clip_yawn; }
     if (!strcmp(n, "orbitsearch")) { InitTimelines(); return &clip_orbitsearch; }
     if (!strcmp(n, "sleeppeek")) { InitTimelines(); return &clip_sleeppeek; }
+    if (!strcmp(n, "speaking_shift")) { InitTimelines(); return &clip_speaking_shift; }
+    if (!strcmp(n, "speaking_squish")) { InitTimelines(); return &clip_speaking_squish; }
+    if (!strcmp(n, "emphasis_blink")) { InitTimelines(); return &clip_emphasis_blink; }
+    if (!strcmp(n, "lookaway")) { InitTimelines(); return &clip_lookaway; }
+    if (!strcmp(n, "wander")) { InitTimelines(); return &clip_wander; }
+    if (!strcmp(n, "bootclose")) return &clip_bootclose;
     return nullptr;
 }
 const Clip* AnimationLibrary::Happy()      { Init(); return &clip_happy; }
@@ -596,5 +747,11 @@ const Clip* AnimationLibrary::DoubleBlink() { InitTimelines(); return &clip_doub
 const Clip* AnimationLibrary::SleepIdle()  { InitTimelines(); return &clip_sleepidle; }
 const Clip* AnimationLibrary::TestHorizontal() { InitTimelines(); return &clip_test_horizontal; }
 const Clip* AnimationLibrary::TinyFocusNarrow() { InitTimelines(); return &clip_tinyfocusnarrow; }
+const Clip* AnimationLibrary::BootCloseFirst() { Init(); return &clip_bootclose; }
+const Clip* AnimationLibrary::SpeakingShift() { InitTimelines(); return &clip_speaking_shift; }
+const Clip* AnimationLibrary::SpeakingSquish() { InitTimelines(); return &clip_speaking_squish; }
+const Clip* AnimationLibrary::EmphasisBlink() { InitTimelines(); return &clip_emphasis_blink; }
+const Clip* AnimationLibrary::Lookaway() { InitTimelines(); return &clip_lookaway; }
+const Clip* AnimationLibrary::Wander() { InitTimelines(); return &clip_wander; }
 
 } // namespace procedural

@@ -1,5 +1,6 @@
 #pragma once
 #include "types.h"
+#include <cstring>
 
 #ifdef CONFIG_PROCEDURAL_DEBUG
 #include <esp_log.h>
@@ -23,7 +24,7 @@ struct BehaviorEntry {
 
 class Scheduler {
 public:
-    static constexpr uint8_t MAX_ACTIVE = 4;
+    static constexpr uint8_t MAX_ACTIVE = 6;
     static constexpr uint8_t MAX_BEHAVIORS = 32;
     struct Active { const Clip* clip; float start; float local; };
 
@@ -38,6 +39,7 @@ public:
 
     void SetPhase(FacePhase phase) { current_phase_ = phase; }
     bool TryPlayAutonomous(FacePhase phase, uint32_t now_ms);
+    void ResetCooldowns() { memset(last_behavior_ms_, 0, sizeof(last_behavior_ms_)); }
 
 private:
     FaceState base_state_;
